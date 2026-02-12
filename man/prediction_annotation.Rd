@@ -33,13 +33,13 @@ prediction_annotation(
 
 \item{label_palette}{Function or vector of colors for true and predicted value (default OrRd).}
 
+\item{n_label_color}{Number of colors for probability palette (default 9).}
+
 \item{prop_palette}{Function or vector of colors for probability gradient (default gray).}
 
 \item{n_prop_colors}{Number of colors for probability palette (default 11).}
 
 \item{gap_mm}{Unit for gap between annotations (default \code{unit(1, "mm")} ).}
-
-\item{n_label_colors}{Number of colors for probability palette (default 9).}
 }
 \value{
 A \code{rowAnnotation} object for predictions and truth.

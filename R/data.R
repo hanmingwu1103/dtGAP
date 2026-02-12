@@ -12,22 +12,19 @@
 #'
 #' @format A data frame with 95 observations and 51 variables:
 #' \describe{
-#'   \item{AH1–AH6}{Hallucinations subscale items (SAPS)}
-#'   \item{BE1–BE4}{Behavior subscale items (SAPS)}
-#'   \item{DL1–DL12}{Delusions subscale items (SAPS)}
-#'   \item{TH1–TH8}{Thought disorder subscale items (SAPS)}
-#'   \item{NA1–NA7}{Expression subscale items (SANS)}
-#'   \item{NB1–NB4}{Speech subscale items (SANS)}
-#'   \item{NC1–NC3}{Hygiene subscale items (SANS)}
-#'   \item{ND1–ND4}{Activity subscale items (SANS)}
-#'   \item{NE1–NE2}{Inattentiveness subscale items (SANS)}
-#'   \item{Diagnosis}{Factor indicating disorder type:
-#'     \code{"schizophrenia"} or \code{"bipolar"}}
+#'   \item{UNIQID}{Factor indicating disorder type.}
+#'   \item{AH1, AH2, AH3, AH4, AH5, AH6}{Hallucinations subscale (SAPS).}
+#'   \item{DL1, DL2, DL3, DL4, DL5, DL6, DL7, DL8, DL9, DL10, DL11, DL12}{Delusions subscale (SAPS).}
+#'   \item{BE1, BE2, BE3, BE4}{Behavior subscale (SAPS).}
+#'   \item{TH1, TH2, TH3, TH4, TH5, TH6, TH7, TH8}{Thought disorder subscale (SAPS).}
+#'   \item{NA1, NA2, NA3, NA4, NA5, NA6, NA7}{Expression subscale (SANS).}
+#'   \item{NB1, NB2, NB3, NB4}{Speech subscale (SANS).}
+#'   \item{NC1, NC2, NC3}{Hygiene subscale (SANS).}
+#'   \item{ND1, ND2, ND3, ND4}{Activity subscale (SANS).}
+#'   \item{NE1, NE2}{Inattentiveness subscale (SANS).}
 #' }
 #'
 "Psychosis_Disorder"
-
-
 
 
 #' Diabetes patient records.

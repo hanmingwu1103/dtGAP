@@ -12,7 +12,7 @@
 
 prepare_features <- function(data,
                              target_lab = NULL,
-                             task       = c("classification", "regression")) {
+                             task = c("classification", "regression")) {
   task <- match.arg(task)
 
   if (!is.data.frame(data)) {
@@ -43,62 +43,46 @@ prepare_features <- function(data,
 
 #' Assigns a train/test indicator to a combined dataset
 #'
-#' This helper binds or splits input dataframes to produce a single
-#' `data_all` with a factor column `data_type` indicating "train" or "test".
-#'
-#' - If `data_all` is `NULL`, both `data_train` and `data_test` **must** be provided;
-#'   these are simply row‑tagged and bound together.
-#' - If `data_all` is provided, it is randomly split into train/test according to `split_size`.
-#'
-#' @param data_train  A data frame of training observations (or `NULL`).
-#' @param data_test   A data frame of testing observations (or `NULL`).
-#' @param data_all    A data frame of all observations (or `NULL`); if supplied
-#'                    without a `data_type` column, it will be split.
-#' @param test_size  Numeric in (0,1), Proportion of data to assign to testing set
-#'                   when splitting data_all (default 0.3).
-#' @param seed       Integer. Random seed used when splitting `data_all`
-#'                   (default 42). The global RNG state is restored after use.
-#' @return A single data frame with the same columns as the input data plus
-#'   a new factor column `data_type` with levels `c("train","test")`.
-
-
-add_data_type <- function(data_train   = NULL,
-                          data_test    = NULL,
-                          data_all     = NULL,
-                          test_size   = 0.3,
-                          seed        = 42) {
-
+#' @param data_train A data frame of training observations (or `NULL`).
+#' @param data_test A data frame of testing observations (or `NULL`).
+#' @param data_all A data frame of all observations (or `NULL`).
+#' @param test_size Numeric in (0,1). Proportion for testing (default 0.3).
+#' @param seed Integer. Random seed for splitting (default 42).
+#' @return A data frame with a `data_type` factor column.
+#' @export
+add_data_type <- function(data_train = NULL,
+                          data_test = NULL,
+                          data_all = NULL,
+                          test_size = 0.3,
+                          seed = 42) {
   if (is.null(data_all)) {
-
     if (is.null(data_train) || is.null(data_test)) {
       stop("When data_all is NULL, you must supply both data_train and data_test.")
     }
 
     data_train <- data_train %>%
       mutate(data_type = "train")
-    data_test  <- data_test %>%
+    data_test <- data_test %>%
       mutate(data_type = "test")
 
     data_all <- bind_rows(data_train, data_test) %>%
       mutate(data_type = factor(data_type, levels = c("train", "test")))
-
   } else {
-
     # Save and restore RNG state to avoid side effects on the global environment
     if (exists(".Random.seed", envir = globalenv())) {
       old_seed <- get(".Random.seed", envir = globalenv())
-      on.exit(assign(".Random.seed", old_seed, envir = globalenv()), add = TRUE)
+      on.exit(assign(".Random.seed", old_seed, envir = globalenv()),
+              add = TRUE)
     } else {
       on.exit(rm(".Random.seed", envir = globalenv()), add = TRUE)
     }
     set.seed(seed)
 
-    n   <- nrow(data_all)
+    n <- nrow(data_all)
     idx <- sample(n, size = floor(test_size * n))
     data_all$data_type <- "train"
     data_all$data_type[idx] <- "test"
     data_all$data_type <- factor(data_all$data_type, levels = c("train", "test"))
-
   }
   return(data_all)
 }

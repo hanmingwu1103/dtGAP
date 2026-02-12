@@ -50,6 +50,8 @@ train_tree(data_train = train_covid, target_lab = "Outcome", model = "caret")
 data(Psychosis_Disorder)
 data <- add_data_type(data_all = Psychosis_Disorder)
 data <- prepare_features(data, target_lab = "UNIQID", task = "classification")
-train_tree(data = data, target_lab = "UNIQID", model = "party",
-                    control = ctree_control(minbucket = 15))
+train_tree(
+  data = data, target_lab = "UNIQID", model = "party",
+  control = ctree_control(minbucket = 15)
+)
 }

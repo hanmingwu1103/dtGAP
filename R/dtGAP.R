@@ -68,25 +68,82 @@
 #' @export
 #'
 #' @examples
+#' \donttest{
 #' # Case 1: test_covid
-#' dtGAP(data_train = train_covid, data_test = test_covid, target_lab = "Outcome", show = "test", label_map = c("0" = "Survival", "1" = "Death"), label_map_colors = c("Survival" = "#50046d", "Death" = "#fcc47f"), raw_value_col = colorRampPalette(c("#33286b", "#26828e", "#75d054", "#fae51f"))(9))
+#' dtGAP(
+#'   data_train = train_covid,
+#'   data_test = test_covid,
+#'   target_lab = "Outcome", show = "test",
+#'   label_map = c("0" = "Survival", "1" = "Death"),
+#'   label_map_colors = c(
+#'     "Survival" = "#50046d", "Death" = "#fcc47f"
+#'   ),
+#'   raw_value_col = colorRampPalette(
+#'     c("#33286b", "#26828e", "#75d054", "#fae51f")
+#'   )(9)
+#' )
 #' # Case 2: Psychosis_Disorder
-#' dtGAP(data_all = Psychosis_Disorder, model = "party", show = "all", trans_type = "none", target_lab = "UNIQID")
-
-
-dtGAP <- function(x= NULL, target_lab = NULL, show = c("all", "train", "test"), model = c("rpart", "party", "C50", "caret"),
-                  control = NULL, data_train = NULL, data_test = NULL, data_all = NULL, test_size = 0.3, task = c("classification", "regression"),
-                  trans_type = c("normalize", "scale", "percentize", "none"), col_proximity = c("pearson", "spearman", "kendall"),
-                  linkage_method = c("CT", "SG", "CP"), seriate_method = "TSP", cRGAR_w = 5, sort_by_data_type = TRUE,
-                  custom_layout = NULL, panel_space = 0.001, margin = 20, total_w = 297, total_h = 210, tree_p = 0.3,
-                  include_var_imp = TRUE, col_var_imp = "orange", var_imp_bar_width = 0.8, var_imp_fontsize = 5, split_var_bg = "darkgreen", split_var_fontsize = 5,
-                  Col_Prox_palette = "RdBu", Col_Prox_n_colors = 11, label_map = NULL, label_map_colors = NULL, type_palette = "Dark2", label_palette = "OrRd",
-                  n_label_color = 9, pred_ha_gap = unit(1, "mm"), prop_palette = gray, n_prop_colors = 11,
-                  Row_Prox_palette = "Spectral", Row_Prox_n_colors = 11, row_border = TRUE, row_gap = unit(1, "mm"),
-                  sorted_dat_palette = "Blues", sorted_dat_n_colors = 9, show_row_names = TRUE,row_names_gp = gpar(fontsize = 5), show_row_prox = TRUE, show_col_prox = TRUE, raw_value_col = NULL,
-                  lgd_direction = c("vertical","horizontal"), x_eval_start = 15, y_eval_start = NULL, eval_text = 7, print_eval = TRUE, simple_metrics = FALSE) {
-
-
+#' dtGAP(
+#'   data_all = Psychosis_Disorder,
+#'   model = "party", show = "all",
+#'   trans_type = "none", target_lab = "UNIQID"
+#' )
+#' }
+dtGAP <- function(x = NULL,
+                  target_lab = NULL,
+                  show = c("all", "train", "test"),
+                  model = c("rpart", "party", "C50", "caret"),
+                  control = NULL,
+                  data_train = NULL,
+                  data_test = NULL,
+                  data_all = NULL,
+                  test_size = 0.3,
+                  task = c("classification", "regression"),
+                  trans_type = c("normalize", "scale", "percentize", "none"),
+                  col_proximity = c("pearson", "spearman", "kendall"),
+                  linkage_method = c("CT", "SG", "CP"),
+                  seriate_method = "TSP",
+                  cRGAR_w = 5,
+                  sort_by_data_type = TRUE,
+                  custom_layout = NULL,
+                  panel_space = 0.001,
+                  margin = 20,
+                  total_w = 297,
+                  total_h = 210,
+                  tree_p = 0.3,
+                  include_var_imp = TRUE,
+                  col_var_imp = "orange",
+                  var_imp_bar_width = 0.8,
+                  var_imp_fontsize = 5,
+                  split_var_bg = "darkgreen",
+                  split_var_fontsize = 5,
+                  Col_Prox_palette = "RdBu",
+                  Col_Prox_n_colors = 11,
+                  label_map = NULL,
+                  label_map_colors = NULL,
+                  type_palette = "Dark2",
+                  label_palette = "OrRd",
+                  n_label_color = 9,
+                  pred_ha_gap = unit(1, "mm"),
+                  prop_palette = gray,
+                  n_prop_colors = 11,
+                  Row_Prox_palette = "Spectral",
+                  Row_Prox_n_colors = 11,
+                  row_border = TRUE,
+                  row_gap = unit(1, "mm"),
+                  sorted_dat_palette = "Blues",
+                  sorted_dat_n_colors = 9,
+                  show_row_names = TRUE,
+                  row_names_gp = gpar(fontsize = 5),
+                  show_row_prox = TRUE,
+                  show_col_prox = TRUE,
+                  raw_value_col = NULL,
+                  lgd_direction = c("vertical", "horizontal"),
+                  x_eval_start = 15,
+                  y_eval_start = NULL,
+                  eval_text = 7,
+                  print_eval = TRUE,
+                  simple_metrics = FALSE) {
   model <- match.arg(model)
   show <- match.arg(show)
   task <- match.arg(task)
@@ -96,19 +153,21 @@ dtGAP <- function(x= NULL, target_lab = NULL, show = c("all", "train", "test"), 
   lgd_direction <- match.arg(lgd_direction)
   valid_methods <- seriation::list_seriation_methods("dist")
   seriate_method <- as.character(seriate_method)
-  if (length(seriate_method) != 1 || !seriate_method %in% valid_methods) {
+  if (length(seriate_method) != 1 ||
+      !seriate_method %in% valid_methods) {
     stop(
       "`seriate_method` must be one of: ",
       paste(valid_methods, collapse = ", "),
-      "; not '", seriate_method, "'."
+      "; not '",
+      seriate_method,
+      "'."
     )
   }
 
   if (is.null(x)) {
-
-    if (is.null(data_all)){
+    if (is.null(data_all)) {
       x <- deparse(substitute(data_train))
-    }else {
+    } else {
       x <- deparse(substitute(data_all))
     }
     x <- gsub("train|test", "", x, ignore.case = TRUE)
@@ -119,55 +178,142 @@ dtGAP <- function(x= NULL, target_lab = NULL, show = c("all", "train", "test"), 
   data_all <- add_data_type(data_train, data_test, data_all, test_size)
   data_all <- prepare_features(data_all, target_lab, task)
 
-  if(is.null(data_train)){data_train <- data_all %>% filter(data_type=="train") %>% select(-data_type)}
-  if(is.null(data_test)){data_test  <- data_all %>% filter(data_type=="test")  %>% select(-data_type)}
+  if (is.null(data_train)) {
+    data_train <- data_all %>%
+      filter(data_type == "train") %>%
+      select(-data_type)
+  }
+  if (is.null(data_test)) {
+    data_test <- data_all %>%
+      filter(data_type == "test") %>%
+      select(-data_type)
+  }
 
   data <- switch(show,
-                      all   = data_all,
-                      train = data_train,
-                      test  = data_test
+                 all   = data_all,
+                 train = data_train,
+                 test  = data_test)
+
+
+  train_result <- train_tree(
+    data_train = data_train,
+    data = data,
+    target_lab = target_lab,
+    model = model,
+    task = task,
+    control = control
   )
-
-
-
-  train_result <- train_tree(data_train = data_train, data = data, target_lab = target_lab, model = model, task = task, control = control)
   fit <- train_result$fit
   var_imp <- train_result$var_imp
 
 
-  tree_res <- compute_tree(fit = fit, model = model, show = show, data = data, target_lab = target_lab, task = task,
-                           custom_layout = custom_layout, panel_space = panel_space)
+  tree_res <- compute_tree(
+    fit = fit,
+    model = model,
+    show = show,
+    data = data,
+    target_lab = target_lab,
+    task = task,
+    custom_layout = custom_layout,
+    panel_space = panel_space
+  )
 
 
-  sorted_dat <- sorted_mat(tree_res = tree_res, target_lab = target_lab, show = show, trans_type = trans_type,
-                           col_proximity = col_proximity, linkage_method = linkage_method,
-                           seriate_method = seriate_method, w = cRGAR_w, sort_by_data_type = sort_by_data_type)
+  sorted_dat <- sorted_mat(
+    tree_res = tree_res,
+    target_lab = target_lab,
+    show = show,
+    trans_type = trans_type,
+    col_proximity = col_proximity,
+    linkage_method = linkage_method,
+    seriate_method = seriate_method,
+    w = cRGAR_w,
+    sort_by_data_type = sort_by_data_type
+  )
 
 
-  layout <- compute_layout(sorted_dat = sorted_dat, margin = margin, total_w = total_w, total_h = total_h, tree_p = tree_p)
+  layout <- compute_layout(
+    sorted_dat = sorted_dat,
+    margin = margin,
+    total_w = total_w,
+    total_h = total_h,
+    tree_p = tree_p
+  )
 
 
-  col_ht_res <- col_ht(fit = fit, sorted_dat = sorted_dat, var_imp = var_imp, layout = layout, include_var_imp = include_var_imp, col_var_imp = col_var_imp,
-                   var_bar_width = var_imp_bar_width, var_fontsize = var_imp_fontsize, split_var_bg = split_var_bg,
-                   split_var_fontsize = split_var_fontsize, palette = Col_Prox_palette, n_colors = Col_Prox_n_colors, show_col_prox = show_col_prox)
+  col_ht_res <- col_ht(
+    fit = fit,
+    sorted_dat = sorted_dat,
+    var_imp = var_imp,
+    layout = layout,
+    include_var_imp = include_var_imp,
+    col_var_imp = col_var_imp,
+    var_bar_width = var_imp_bar_width,
+    var_fontsize = var_imp_fontsize,
+    split_var_bg = split_var_bg,
+    split_var_fontsize = split_var_fontsize,
+    palette = Col_Prox_palette,
+    n_colors = Col_Prox_n_colors,
+    show_col_prox = show_col_prox
+  )
 
 
   split_vec <- get_split_vec(sorted_dat = sorted_dat, tree_res = tree_res)
-  pred_ha_res <- prediction_annotation(sorted_dat = sorted_dat, target_lab = target_lab, task = task, label_map = label_map, label_map_colors = label_map_colors,
-                                   type_palette = type_palette, label_palette = label_palette, n_label_color = n_label_color, prop_palette = prop_palette, n_prop_colors = n_prop_colors, gap_mm = pred_ha_gap)
+  pred_ha_res <- prediction_annotation(
+    sorted_dat = sorted_dat,
+    target_lab = target_lab,
+    task = task,
+    label_map = label_map,
+    label_map_colors = label_map_colors,
+    type_palette = type_palette,
+    label_palette = label_palette,
+    n_label_color = n_label_color,
+    prop_palette = prop_palette,
+    n_prop_colors = n_prop_colors,
+    gap_mm = pred_ha_gap
+  )
 
-  row_prop_ha_res <- row_prop_anno(sorted_dat = sorted_dat, layout = layout, split_vec = split_vec, palette = Row_Prox_palette, n_colors = Row_Prox_n_colors, border = row_border, gap_mm = row_gap, show_row_prox = show_row_prox)
-  main_ht_res <- make_main_heatmap(sorted_dat = sorted_dat, split_vec = split_vec, pred_ha = pred_ha_res$annotation, row_prop_ha = row_prop_ha_res$annotation, layout = layout, palette = sorted_dat_palette, n_colors = sorted_dat_n_colors,
-                               show_row_names = show_row_names, row_names_gp = row_names_gp, show_row_prox = show_row_prox, raw_value_col = raw_value_col)
+  row_prop_ha_res <- row_prop_anno(
+    sorted_dat = sorted_dat,
+    layout = layout,
+    split_vec = split_vec,
+    palette = Row_Prox_palette,
+    n_colors = Row_Prox_n_colors,
+    border = row_border,
+    gap_mm = row_gap,
+    show_row_prox = show_row_prox
+  )
+  main_ht_res <- make_main_heatmap(
+    sorted_dat = sorted_dat,
+    split_vec = split_vec,
+    pred_ha = pred_ha_res$annotation,
+    row_prop_ha = row_prop_ha_res$annotation,
+    layout = layout,
+    palette = sorted_dat_palette,
+    n_colors = sorted_dat_n_colors,
+    show_row_names = show_row_names,
+    row_names_gp = row_names_gp,
+    show_row_prox = show_row_prox,
+    raw_value_col = raw_value_col
+  )
 
 
-  pals <- c(col_ht_res$palettes, pred_ha_res$palettes, row_prop_ha_res$palettes, main_ht_res$palettes)
-  if (!show_row_prox) {pals$col_Row_Proximity <- NULL}
-  if (!show_col_prox) {pals$col_Col_Proximity <- NULL}
+  pals <- c(
+    col_ht_res$palettes,
+    pred_ha_res$palettes,
+    row_prop_ha_res$palettes,
+    main_ht_res$palettes
+  )
+  if (!show_row_prox) {
+    pals$col_Row_Proximity <- NULL
+  }
+  if (!show_col_prox) {
+    pals$col_Col_Proximity <- NULL
+  }
   legends <- generate_legend_bundle(
     sorted_dat = sorted_dat,
     task = task,
-    show =  show,
+    show = show,
     type_cols = pals$type_cols,
     label_cols = pals$label_cols,
     prop_cols = pals$prop_cols,
@@ -178,13 +324,47 @@ dtGAP <- function(x= NULL, target_lab = NULL, show = c("all", "train", "test"), 
   )
 
 
-  combined_heatmap <- if (show_col_prox) col_ht_res$heatmap %v% main_ht_res$heatmap else main_ht_res$heatmap
-  heat <- grid.grabExpr(draw(combined_heatmap, heatmap_legend_list = legends, auto_adjust = FALSE, ht_gap = unit(0, "mm"), newpage = FALSE))
+  combined_heatmap <- if (show_col_prox)
+    col_ht_res$heatmap %v% main_ht_res$heatmap
+  else
+    main_ht_res$heatmap
+  heat <- grid.grabExpr(
+    draw(
+      combined_heatmap,
+      heatmap_legend_list = legends,
+      auto_adjust = FALSE,
+      ht_gap = unit(0, "mm"),
+      newpage = FALSE
+    )
+  )
 
   tree_viz <- prepare_tree(tree_res = tree_res, model = model)
-  eval_res <- eval_tree(x = x, fit = fit, task = task, tree_res = tree_res, target_lab = target_lab, sorted_dat = sorted_dat, show = show, model = model,
-                        col_proximity = col_proximity, linkage_method = linkage_method, seriate_method = seriate_method, simple_metrics = simple_metrics)
-  draw_all(prepare_tree = tree_viz, heat = heat, total_w = total_w, total_h = total_h, layout = layout, x_eval_start = x_eval_start, y_eval_start = y_eval_start,
-           eval_text = eval_text, eval_res = eval_res, print_eval = print_eval, show_col_prox = show_col_prox, show_row_prox = show_row_prox)
-
+  eval_res <- eval_tree(
+    x = x,
+    fit = fit,
+    task = task,
+    tree_res = tree_res,
+    target_lab = target_lab,
+    sorted_dat = sorted_dat,
+    show = show,
+    model = model,
+    col_proximity = col_proximity,
+    linkage_method = linkage_method,
+    seriate_method = seriate_method,
+    simple_metrics = simple_metrics
+  )
+  draw_all(
+    prepare_tree = tree_viz,
+    heat = heat,
+    total_w = total_w,
+    total_h = total_h,
+    layout = layout,
+    x_eval_start = x_eval_start,
+    y_eval_start = y_eval_start,
+    eval_text = eval_text,
+    eval_res = eval_res,
+    print_eval = print_eval,
+    show_col_prox = show_col_prox,
+    show_row_prox = show_row_prox
+  )
 }

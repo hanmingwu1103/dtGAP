@@ -17,30 +17,8 @@
 #'
 #' @return A configured \code{Heatmap} object.
 #'
+#' @export
 #' @keywords internal
-#'
-#' @examples
-#' library(rpart)
-#' library(partykit)
-#' library(ggparty)
-#' library(dplyr)
-#' library(seriation)
-#' library(ComplexHeatmap)
-#' library(circlize)
-#' data_all <- add_data_type(data_train = train_covid, data_test = test_covid)
-#' data <- prepare_features(data_all, target_lab = "Outcome", task = "classification")
-#' train_tree = train_tree(data_train = train_covid, target_lab = "Outcome", model = "rpart")
-#' fit = train_tree$fit
-#' var_imp = train_tree$var_imp
-#' tree_res = compute_tree(fit, model = "rpart", show ="test", data = data, target_lab = "Outcome", task = "classification")
-#' sorted_dat = sorted_mat(tree_res, target_lab = "Outcome", show = "test")
-#' split_vec = get_split_vec(sorted_dat, tree_res)
-#' layout = compute_layout(sorted_dat)
-#' row_prop_ha = row_prop_anno(sorted_dat, layout, split_vec)
-#' pred_ha = prediction_annotation(sorted_dat,target_lab = "Outcome",
-#'                                 label_map = c("0" = "Survival", "1" = "Death"),
-#'                                 label_map_colors = c("Survival" = "#50046d", "Death" = "#fcc47f"))
-#' make_main_heatmap(sorted_dat, split_vec, pred_ha, row_prop_ha, layout)
 
 make_main_heatmap <- function(sorted_dat,
                               split_vec,
@@ -52,41 +30,40 @@ make_main_heatmap <- function(sorted_dat,
                               show_row_names = TRUE,
                               row_names_gp = gpar(fontsize = 5),
                               show_row_prox = TRUE,
-                              raw_value_col = NULL
-                              ) {
-
-
+                              raw_value_col = NULL) {
   dat <- sorted_dat$dat_sorted
   sorted_test_matrix <- sorted_dat$sorted_test_matrix
 
-  feat <- intersect(colnames(dat),colnames(sorted_test_matrix))
-  numeric_feats  <- feat[sapply(dat[feat], is.numeric)]
-  categorical_feats <- feat[sapply(dat[feat], function(x) is.factor(x) || is.character(x))]
+  feat <- intersect(colnames(dat), colnames(sorted_test_matrix))
+  numeric_feats <- feat[sapply(dat[feat], is.numeric)]
+  categorical_feats <- feat[sapply(dat[feat], function(x)
+    is.factor(x) || is.character(x))]
 
-  mat_cont <- sorted_test_matrix[,intersect(colnames(sorted_test_matrix), numeric_feats),
-                                 drop = FALSE]
+  mat_cont <- sorted_test_matrix[, intersect(colnames(sorted_test_matrix), numeric_feats), drop = FALSE]
   storage.mode(mat_cont) <- "numeric"
 
   pal_colors <- brewer.pal(n_colors, palette)
 
   if (!is.null(raw_value_col)) {
     cols <- raw_value_col
-    stops <- seq(min(mat_cont, na.rm = TRUE), max(mat_cont, na.rm = TRUE),
+    stops <- seq(min(mat_cont, na.rm = TRUE),
+                 max(mat_cont, na.rm = TRUE),
                  length.out = length(cols))
     col_mat <- colorRamp2(stops, cols)
-
   } else {
-    col_mat <- colorRamp2(
-      seq(min(mat_cont, na.rm = TRUE),
-          max(mat_cont, na.rm = TRUE),
-          length.out = n_colors),
-      pal_colors
-    )
+    col_mat <- colorRamp2(seq(
+      min(mat_cont, na.rm = TRUE),
+      max(mat_cont, na.rm = TRUE),
+      length.out = n_colors
+    ), pal_colors)
   }
   row_h <- layout$row_h
   col_h <- layout$col_h
 
-  right_anno <- if (show_row_prox) row_prop_ha else NULL
+  right_anno <- if (show_row_prox)
+    row_prop_ha
+  else
+    NULL
   ht <- Heatmap(
     mat_cont,
     col = col_mat,
@@ -133,55 +110,32 @@ make_main_heatmap <- function(sorted_dat,
 #'
 #' @return A \code{Heatmap} object from ComplexHeatmap.
 #'
+#' @export
 #' @keywords internal
-#'
-#' @examples
-#'
-#' library(rpart)
-#' library(partykit)
-#' library(ggparty)
-#' library(dplyr)
-#' library(seriation)
-#' library(ComplexHeatmap)
-#' library(circlize)
-#' data_all <- add_data_type(data_train = train_covid, data_test = test_covid)
-#' data <- prepare_features(data_all, target_lab = "Outcome", task = "classification")
-#' train_tree = train_tree(data_train = train_covid, target_lab = "Outcome", model = "rpart")
-#' fit = train_tree$fit
-#' var_imp = train_tree$var_imp
-#' tree_res = compute_tree(fit, model = "rpart", show ="test", data = data, target_lab = "Outcome", task = "classification")
-#' sorted_dat = sorted_mat(tree_res, target_lab = "Outcome", show = "test")
-#' layout = compute_layout(sorted_dat)
-#' col_ht(fit, sorted_dat, var_imp, layout)
-
 
 col_ht <- function(fit,
                    sorted_dat,
                    var_imp,
                    layout,
                    include_var_imp = TRUE,
-                   col_var_imp      = "orange",
-                   var_bar_width    = 0.8,
-                   var_fontsize     = 5,
+                   col_var_imp = "orange",
+                   var_bar_width = 0.8,
+                   var_fontsize = 5,
                    split_var_bg = "darkgreen",
                    split_var_fontsize = 5,
-                   palette          = "RdBu",
-                   n_colors         = 11,
+                   palette = "RdBu",
+                   n_colors = 11,
                    show_col_prox = TRUE) {
-
   if (is.null(sorted_dat$col_pro_mat_sorted)) {
     return(list(heatmap = NULL, palettes = list()))
   }
 
   col_h <- layout$col_h
-  col_pro_mat_sorted = sorted_dat$col_pro_mat_sorted
+  col_pro_mat_sorted <- sorted_dat$col_pro_mat_sorted
 
   if (include_var_imp) {
     features <- sorted_dat$sorted_col_names
-    ordered_importance <- setNames(
-      ifelse(features %in% names(var_imp), var_imp[features], 0),
-      features
-    )
+    ordered_importance <- setNames(ifelse(features %in% names(var_imp), var_imp[features], 0), features)
     selected_var_imp <- features %in% names(var_imp)
     fontsize_var <- ifelse(selected_var_imp, var_fontsize, 0)
     bgcolor_var <- ifelse(selected_var_imp, col_var_imp, "transparent")
@@ -211,15 +165,13 @@ col_ht <- function(fit,
   features <- sorted_dat$sorted_col_names
   fontcolors <- ifelse(features %in% split_var, "white", "black")
   fontfaces <- ifelse(features %in% split_var, "bold", "plain")
-  fontbg     <- ifelse(features %in% split_var, split_var_bg, "transparent")
+  fontbg <- ifelse(features %in% split_var, split_var_bg, "transparent")
 
 
-  if (!palette %in% rownames(brewer.pal.info)) stop("Palette not found: ", palette)
+  if (!palette %in% rownames(brewer.pal.info))
+    stop("Palette not found: ", palette)
   pal_colors <- rev(brewer.pal(n_colors, palette)) # red : Positive correlation / blue : Negative correlation
-  col_Col_Proximity <- colorRamp2(
-    seq(-1,1,length.out = n_colors),
-    pal_colors
-  )
+  col_Col_Proximity <- colorRamp2(seq(-1, 1, length.out = n_colors), pal_colors)
   palettes <- list()
   if (show_col_prox) {
     palettes$col_Col_Proximity <- col_Col_Proximity
@@ -227,26 +179,28 @@ col_ht <- function(fit,
 
   ht <- Heatmap(
     col_pro_mat_sorted,
-    name               = "Col Proximity",
-    col                = col_Col_Proximity,
-    row_title          = NULL,
-    column_title       = NULL,
-    show_row_names     = TRUE,
-    row_names_side     = "left",
-    row_names_gp       = gpar(fill = fontbg,
-                              fontsize = split_var_fontsize,
-                              fontface = fontfaces,
-                              col      = fontcolors),
-    show_column_names  = FALSE,
-    show_column_dend   = FALSE,
-    show_row_dend      = FALSE,
-    cluster_rows       = FALSE,
-    cluster_columns    = FALSE,
-    right_annotation   = var_ha,
-    border             = TRUE,
-    show_heatmap_legend= FALSE,
-    width              = unit(col_h, "mm"),
-    height             = unit(col_h, "mm")
+    name = "Col Proximity",
+    col = col_Col_Proximity,
+    row_title = NULL,
+    column_title = NULL,
+    show_row_names = TRUE,
+    row_names_side = "left",
+    row_names_gp = gpar(
+      fill = fontbg,
+      fontsize = split_var_fontsize,
+      fontface = fontfaces,
+      col = fontcolors
+    ),
+    show_column_names = FALSE,
+    show_column_dend = FALSE,
+    show_row_dend = FALSE,
+    cluster_rows = FALSE,
+    cluster_columns = FALSE,
+    right_annotation = var_ha,
+    border = TRUE,
+    show_heatmap_legend = FALSE,
+    width = unit(col_h, "mm"),
+    height = unit(col_h, "mm")
   )
 
   return(list(heatmap = ht, palettes = palettes))
@@ -270,9 +224,8 @@ col_ht <- function(fit,
 #'
 #' @return A \code{rowAnnotation} object for use in a ComplexHeatmap.
 #'
+#' @export
 #' @keywords internal
-
-
 
 row_prop_anno <- function(sorted_dat,
                           layout,
@@ -282,7 +235,6 @@ row_prop_anno <- function(sorted_dat,
                           border = TRUE,
                           gap_mm = unit(1, "mm"),
                           show_row_prox = TRUE) {
-
   if (is.null(sorted_dat$row_pro_mat_sorted)) {
     return(list(annotation = NULL, palettes = list()))
   }
@@ -291,25 +243,26 @@ row_prop_anno <- function(sorted_dat,
 
 
   split_list <- split(seq_len(ncol(R_mat)), split_vec)
-  split_matrices <- lapply(split_list, function(cols) R_mat[, cols, drop = FALSE])
+  split_matrices <- lapply(split_list, function(cols)
+    R_mat[, cols, drop = FALSE])
 
-  if (!palette %in% rownames(brewer.pal.info)) stop("Palette not found: ", palette)
+  if (!palette %in% rownames(brewer.pal.info))
+    stop("Palette not found: ", palette)
   pal_colors <- rev(brewer.pal(n_colors, palette))
 
-  col_Row_Proximity <- colorRamp2(
-    seq(min(R_mat, na.rm = TRUE), max(R_mat, na.rm = TRUE), length.out = n_colors),
-    pal_colors
-  )
+  col_Row_Proximity <- colorRamp2(seq(min(R_mat, na.rm = TRUE), max(R_mat, na.rm = TRUE), length.out = n_colors), pal_colors)
 
   palettes <- list()
   if (show_row_prox) {
     palettes$col_Row_Proximity <- col_Row_Proximity
   }
   ann_list <- lapply(names(split_matrices), function(g) {
-    anno_simple(split_matrices[[g]],
-                col    = col_Row_Proximity,
-                border = border,
-                which  = "row")
+    anno_simple(
+      split_matrices[[g]],
+      col    = col_Row_Proximity,
+      border = border,
+      which  = "row"
+    )
   })
   names(ann_list) <- names(split_matrices)
 
@@ -345,31 +298,32 @@ row_prop_anno <- function(sorted_dat,
 #' @param label_map_colors Optional named vector of colors for mapped labels.
 #' @param type_palette RColorBrewer palette for data_type (default "Dark2").
 #' @param label_palette Function or vector of colors for true and predicted value (default OrRd).
-#' @param n_label_colors Number of colors for probability palette (default 9).
+#' @param n_label_color Number of colors for probability palette (default 9).
 #' @param prop_palette Function or vector of colors for probability gradient (default gray).
 #' @param n_prop_colors Number of colors for probability palette (default 11).
 #' @param gap_mm Unit for gap between annotations (default \code{unit(1, "mm")} ).
 #'
 #' @return A \code{rowAnnotation} object for predictions and truth.
 #'
+#' @export
 #' @keywords internal
 
 prediction_annotation <- function(sorted_dat,
                                   target_lab,
-                                  task              = c("classification", "regression"),
-                                  label_map         = NULL,
-                                  label_map_colors  = NULL,
-                                  type_palette      = "Dark2",
-                                  label_palette     = "OrRd",
-                                  n_label_color     = 9,
-                                  prop_palette      = gray,
-                                  n_prop_colors     = 11,
-                                  gap_mm            = unit(1, "mm")) {
+                                  task = c("classification", "regression"),
+                                  label_map = NULL,
+                                  label_map_colors = NULL,
+                                  type_palette = "Dark2",
+                                  label_palette = "OrRd",
+                                  n_label_color = 9,
+                                  prop_palette = gray,
+                                  n_prop_colors = 11,
+                                  gap_mm = unit(1, "mm")) {
   task <- match.arg(task)
 
   dat_sorted <- sorted_dat$dat_sorted
-  raw_pred   <- dat_sorted[["y_hat"]]
-  raw_true   <- dat_sorted[[target_lab]]
+  raw_pred <- dat_sorted[["y_hat"]]
+  raw_true <- dat_sorted[[target_lab]]
 
   ann_cols <- list()
   palettes <- list()
@@ -386,7 +340,6 @@ prediction_annotation <- function(sorted_dat,
   }
 
   if (task == "classification") {
-
     dat_sorted$Predicted <- if (!is.null(label_map)) {
       label_map[as.character(raw_pred)]
     } else {
@@ -399,7 +352,8 @@ prediction_annotation <- function(sorted_dat,
     }
 
     lvls <- unique(dat_sorted$True)
-    if (!is.null(label_map_colors) && all(lvls %in% names(label_map_colors))) {
+    if (!is.null(label_map_colors) &&
+        all(lvls %in% names(label_map_colors))) {
       label_cols <- label_map_colors[lvls]
     } else {
       label_cols <- RColorBrewer::brewer.pal(9, "Set1")[1:length(lvls)]
@@ -408,11 +362,11 @@ prediction_annotation <- function(sorted_dat,
     palettes$label_cols <- label_cols
 
     ann_cols$Predicted <- label_cols
-    ann_cols$True      <- label_cols
+    ann_cols$True <- label_cols
 
 
     prob_cols <- unique(as.character(raw_pred))
-    prob_raw  <- as.matrix(dat_sorted[, prob_cols, drop = FALSE])
+    prob_raw <- as.matrix(dat_sorted[, prob_cols, drop = FALSE])
     rownames(prob_raw) <- dat_sorted$Sample
     if (!is.null(label_map)) {
       colnames(prob_raw) <- label_map[colnames(prob_raw)]
@@ -422,11 +376,9 @@ prediction_annotation <- function(sorted_dat,
     prop_cols <- colorRamp2(vals, rev(prop_palette(vals)))
     ann_cols$Prob <- prop_cols
     palettes$prop_cols <- prop_cols
-
   } else if (task == "regression") {
-
     dat_sorted$Predicted <- raw_pred
-    dat_sorted$True      <- raw_true
+    dat_sorted$True <- raw_true
 
     min_val <- min(c(raw_pred, raw_true), na.rm = TRUE)
     max_val <- max(c(raw_pred, raw_true), na.rm = TRUE)
@@ -436,23 +388,32 @@ prediction_annotation <- function(sorted_dat,
                              pal_colors)
 
     ann_cols$Predicted <- label_cols
-    ann_cols$True      <- label_cols
+    ann_cols$True <- label_cols
 
     palettes$label_cols <- label_cols
   }
 
   ra <- rowAnnotation(
-    Type      = if ("data_type" %in% names(dat_sorted)) dat_sorted$data_type else NULL,
+    Type = if ("data_type" %in% names(dat_sorted))
+      dat_sorted$data_type
+    else
+      NULL,
     Predicted = dat_sorted$Predicted,
-    True      = dat_sorted$True,
-    Prob      = if (task == "classification") prob_raw else NULL,
-    col       = ann_cols,
-    gap       = gap_mm,
-    show_annotation_name = if (task == "classification") c(Prob = FALSE) else NULL,
-    annotation_name_gp   = gpar(fontsize = 5, fontface = "bold"),
+    True = dat_sorted$True,
+    Prob = if (task == "classification")
+      prob_raw
+    else
+      NULL,
+    col = ann_cols,
+    gap = gap_mm,
+    show_annotation_name = if (task == "classification")
+      c(Prob = FALSE)
+    else
+      NULL,
+    annotation_name_gp = gpar(fontsize = 5, fontface = "bold"),
     annotation_name_side = "top",
-    show_legend          = FALSE,
-    border               = TRUE
+    show_legend = FALSE,
+    border = TRUE
   )
 
   return(list(annotation = ra, palettes = palettes))

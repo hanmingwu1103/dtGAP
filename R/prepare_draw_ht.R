@@ -1,32 +1,13 @@
 #' Compute Row and Column Proportions for Layout
-#'
-#' @description
-#' Calculates the relative proportions of rows and columns based on the dimensions of the sorted test matrix.
-#'
-#' @param sorted_dat List returned by \code{sorted_mat()}, containing \code{sorted_test_matrix}.
-#'
-#' @return A list with two numeric elements:
-#'   \item{row}{Proportion of total height allocated to rows.}
-#'   \item{col}{Proportion of total width allocated to columns.}
-#'
-#' @examples
-#' # Assume sorted_dat$sorted_test_matrix is a 10x20 matrix
-#' sorted_dat <- list(sorted_test_matrix = matrix(1, nrow = 10, ncol = 20))
-#' heat_prop(sorted_dat)
-#'
-#' @keywords internal
-heat_prop <- function(sorted_dat){
-
-  mat  <- sorted_dat$sorted_test_matrix
-  n_r  <- nrow(mat)
-  n_c  <- ncol(mat)
+#' @noRd
+heat_prop <- function(sorted_dat) {
+  mat <- sorted_dat$sorted_test_matrix
+  n_r <- nrow(mat)
+  n_c <- ncol(mat)
   col_prop <- n_c / (n_r + n_c)
   row_prop <- n_r / (n_r + n_c)
 
-  return(list(
-    col = col_prop,
-    row = row_prop
-  ))
+  return(list(col = col_prop, row = row_prop))
 }
 
 
@@ -51,17 +32,15 @@ heat_prop <- function(sorted_dat){
 #'   \item{offset_h}{Adjustment applied to ensure minimum column height.}
 #'   \item{margin}{Margin passed through.}
 #'
+#' @export
 #' @keywords internal
 
 compute_layout <- function(sorted_dat,
                            margin = 20,
                            total_w = 297,
                            total_h = 210,
-                           tree_p   = 0.3
-) {
-
-
-  tree_w    <- total_w * tree_p
+                           tree_p = 0.3) {
+  tree_w <- total_w * tree_p
   heatmap_w <- total_w - tree_w
   row_prop <- heat_prop(sorted_dat)$row
   col_prop <- heat_prop(sorted_dat)$col
@@ -76,20 +55,22 @@ compute_layout <- function(sorted_dat,
   if (any(col_h < 10)) {
     # handle too small col_ht
     offset_h <- 10 - pmin(col_h, 10)
-    col_h    <- pmax(col_h, 10)
+    col_h <- pmax(col_h, 10)
   }
   tree_h <- row_h
 
-  return(list(
-    tree_w    = tree_w,
-    heatmap_w = heatmap_w,
-    total_draw_h = total_draw_h,
-    offset_h = offset_h,
-    row_h  = row_h,
-    col_h  = col_h,
-    tree_h  = tree_h,
-    margin = margin
-  ))
+  return(
+    list(
+      tree_w = tree_w,
+      heatmap_w = heatmap_w,
+      total_draw_h = total_draw_h,
+      offset_h = offset_h,
+      row_h = row_h,
+      col_h = col_h,
+      tree_h = tree_h,
+      margin = margin
+    )
+  )
 }
 
 #' Build Split Factor for Heatmap Rows
@@ -102,10 +83,10 @@ compute_layout <- function(sorted_dat,
 #' @param tree_res List from \code{compute_tree()}
 #'
 #' @return A factor indicating leaf grouping for each row in \code{row_pro_mat_sorted}.
+#' @export
 #' @keywords internal
 get_split_vec <- function(sorted_dat, tree_res) {
-
-  R_mat    <- sorted_dat$sorted_test_matrix
+  R_mat <- sorted_dat$sorted_test_matrix
   node_ids <- sorted_dat$node_ids
 
   plot_data <- tree_res$plot_data
@@ -115,15 +96,10 @@ get_split_vec <- function(sorted_dat, tree_res) {
     pull(id) %>%
     as.character()
 
-  split_vec <- factor(
-    node_ids[match(rownames(R_mat), names(node_ids))],
-    levels = leaf_nodes
-  )
+  split_vec <- factor(node_ids[match(rownames(R_mat), names(node_ids))], levels = leaf_nodes)
 
   return(split_vec)
 }
-
-
 
 
 #' Generate a Bundle of Legends for Heatmap Components
@@ -146,19 +122,18 @@ get_split_vec <- function(sorted_dat, tree_res) {
 #'
 #' @return A \code{ComplexHeatmap} packed Legend object containing all specified legends.
 #'
+#' @export
 #' @keywords internal
-generate_legend_bundle <- function(
-    sorted_dat,
-    task = c("classification", "regression"),
-    show =  c("all", "train", "test"),
-    type_cols = NULL,
-    label_cols,
-    prop_cols = NULL,
-    col_mat,
-    col_Col_Proximity = NULL,
-    col_Row_Proximity = NULL,
-    direction = c("vertical", "horizontal")
-) {
+generate_legend_bundle <- function(sorted_dat,
+                                   task = c("classification", "regression"),
+                                   show = c("all", "train", "test"),
+                                   type_cols = NULL,
+                                   label_cols,
+                                   prop_cols = NULL,
+                                   col_mat,
+                                   col_Col_Proximity = NULL,
+                                   col_Row_Proximity = NULL,
+                                   direction = c("vertical", "horizontal")) {
   direction <- match.arg(direction)
   task <- match.arg(task)
 
@@ -166,8 +141,9 @@ generate_legend_bundle <- function(
   sorted_test_matrix <- sorted_dat$sorted_test_matrix
 
   feat <- intersect(colnames(dat), colnames(sorted_test_matrix))
-  numeric_feats  <- feat[sapply(dat[feat], is.numeric)]
-  categorical_feats <- feat[sapply(dat[feat], function(x) is.factor(x) || is.character(x))]
+  numeric_feats <- feat[sapply(dat[feat], is.numeric)]
+  categorical_feats <- feat[sapply(dat[feat], function(x)
+    is.factor(x) || is.character(x))]
 
   mat_cont <- sorted_test_matrix[, numeric_feats, drop = FALSE]
   storage.mode(mat_cont) <- "numeric"
@@ -176,11 +152,11 @@ generate_legend_bundle <- function(
 
   default_defs <- list()
 
-  if (!is.null(type_cols) && show == 'all') {
+  if (!is.null(type_cols) && show == "all") {
     default_defs$Type <- list(
       at = names(type_cols),
       legend_gp = gpar(fill = type_cols),
-      title = 'Type',
+      title = "Type",
       ncol = length(type_cols)
     )
   }
@@ -190,15 +166,13 @@ generate_legend_bundle <- function(
     default_defs$Class <- list(
       at = names(label_cols),
       legend_gp = gpar(fill = label_cols),
-      title = 'Class Labels',
+      title = "Class Labels",
       ncol = length(label_cols)
     )
     if (!is.null(prop_cols)) {
-      default_defs$Membership <- list(
-        title = 'Class Membership',
-        col_fun = prop_cols,
-        at = c(0, 0.5, 1)
-      )
+      default_defs$Membership <- list(title = "Class Membership",
+                                      col_fun = prop_cols,
+                                      at = c(0, 0.5, 1))
     }
   }
 
@@ -214,53 +188,47 @@ generate_legend_bundle <- function(
       default_defs$True <- list(
         title = "True/Predicted Value",
         col_fun = label_cols,
-        at = c(
-          round(min_val, 0),
-          mid_val,
-          round(max_val, 0)
-        )
+        at = c(round(min_val, 0), mid_val, round(max_val, 0))
       )
     }
   }
 
   # Raw values legend (always needed)
   default_defs$RawValues <- list(
-    title = 'Raw Data Values',
+    title = "Raw Data Values",
     col_fun = col_mat,
-    at = c(
-      round(min(mat_cont, na.rm = TRUE), 0),
-      round((min(mat_cont, na.rm = TRUE) + max(mat_cont, na.rm = TRUE)) / 2, 1),
-      round(max(mat_cont, na.rm = TRUE), 0)
-    )
+    at = c(round(min(mat_cont, na.rm = TRUE), 0), round((
+      min(mat_cont, na.rm = TRUE) + max(mat_cont, na.rm = TRUE)
+    ) / 2, 1), round(max(mat_cont, na.rm = TRUE), 0))
   )
 
   # Proximity legends
   if (!is.null(col_Col_Proximity)) {
-    default_defs$ColProximity <- list(
-      title   = 'Proximity for Columns',
-      col_fun = col_Col_Proximity,
-      at      = c(-1, 0, 1)
-    )
+    default_defs$ColProximity <- list(title   = "Proximity for Columns",
+                                      col_fun = col_Col_Proximity,
+                                      at      = c(-1, 0, 1))
   }
 
   if (!is.null(col_Row_Proximity)) {
     default_defs$RowProximity <- list(
-      title   = 'Proximity for Rows',
+      title = "Proximity for Rows",
       col_fun = col_Row_Proximity,
-      at      = c(
-        round(min(row_pro_mat_sorted, na.rm = TRUE), 0),
-        round((min(row_pro_mat_sorted, na.rm = TRUE) + max(row_pro_mat_sorted, na.rm = TRUE)) / 2, 1),
-        round(max(row_pro_mat_sorted, na.rm = TRUE), 0)
-      )
+      at = c(round(
+        min(row_pro_mat_sorted, na.rm = TRUE), 0
+      ), round((
+        min(row_pro_mat_sorted, na.rm = TRUE) + max(row_pro_mat_sorted, na.rm = TRUE)
+      ) / 2, 1), round(
+        max(row_pro_mat_sorted, na.rm = TRUE), 0
+      ))
     )
   }
 
   common_legend_params <- list(
     legend_width = unit(1.5, "cm"),
-    direction = 'horizontal',
-    title_position = 'topleft',
-    border = 'black',
-    title_gp = gpar(fontsize = 7, fontface = 'bold'),
+    direction = "horizontal",
+    title_position = "topleft",
+    border = "black",
+    title_gp = gpar(fontsize = 7, fontface = "bold"),
     labels_gp = gpar(fontsize = 7)
   )
 
@@ -269,10 +237,14 @@ generate_legend_bundle <- function(
     do.call(ComplexHeatmap::Legend, args)
   })
 
-  legend_bundle <- do.call(
-    ComplexHeatmap::packLegend,
-    c(indiv, list(direction = direction, column_gap = unit(3, "cm"), row_gap = unit(3, "mm")))
-  )
+  legend_bundle <- do.call(ComplexHeatmap::packLegend, c(
+    indiv,
+    list(
+      direction = direction,
+      column_gap = unit(3, "cm"),
+      row_gap = unit(3, "mm")
+    )
+  ))
 
   return(legend_bundle)
 }

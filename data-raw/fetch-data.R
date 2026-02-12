@@ -46,8 +46,8 @@ Psychosis_Disorder <- read.delim("~/dtGAP/data-raw/SAPSSANS9550.txt")
 wine <- read.delim("~/dtGAP/data-raw/wine_scaled.txt")
 wine <- wine %>% dplyr::select(-no)
 
-usethis::use_data(diabetes, penguins,wine,
-                  train_covid, test_covid, Psychosis_Disorder,
-                  wine_quality_red,galaxy,
-                  overwrite = TRUE
+usethis::use_data(diabetes, penguins, wine,
+  train_covid, test_covid, Psychosis_Disorder,
+  wine_quality_red, galaxy,
+  overwrite = TRUE
 )

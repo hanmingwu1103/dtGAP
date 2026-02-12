@@ -32,26 +32,25 @@
 #' data(Psychosis_Disorder)
 #' data <- add_data_type(data_all = Psychosis_Disorder)
 #' data <- prepare_features(data, target_lab = "UNIQID", task = "classification")
-#' train_tree(data = data, target_lab = "UNIQID", model = "party",
-#'                     control = ctree_control(minbucket = 15))
-
-
+#' train_tree(
+#'   data = data, target_lab = "UNIQID", model = "party",
+#'   control = ctree_control(minbucket = 15)
+#' )
 train_tree <- function(data_train = NULL,
                        data = NULL,
                        target_lab = NULL,
                        model = c("rpart", "party", "C50", "caret"),
                        task = c("classification", "regression"),
                        control = NULL) {
-
   task <- match.arg(task)
   model <- match.arg(model)
 
-  if (is.null(data_train)&&is.null(data)) {
+  if (is.null(data_train) && is.null(data)) {
     stop("Please provide the train model.")
   }
 
   if (is.null(data_train)) {
-    data_train = subset(data, data_type == "train")
+    data_train <- subset(data, data_type == "train")
   }
 
 
@@ -59,70 +58,84 @@ train_tree <- function(data_train = NULL,
   formula <- as.formula(paste(target_lab, "~ ."))
 
   # Fit the decision tree model based on selected model
-  tree_model <- switch(model,
-                       "rpart" = {
-                         method <- if (task == "regression") "anova" else "class"
-                         if (is.null(control)) {
-                           rpart(formula, data = data_train, method = method)
-                         } else {
-                           rpart(formula, data = data_train, control = control, method = method)
-                         }
-                       },
-                       "party" = {
-                         if (is.null(control)) {
-                           ctree(formula, data = data_train)
-                         } else {
-                           ctree(formula, data = data_train, control = control)
-                         }
-                       },
-                       "C50"  = {
-                         if (task == "regression") stop("C50 does not support regression.")
-                         if (is.null(control)) {
-                           C5.0(formula, data = data_train)
-                         } else {
-                           C5.0(formula, data = data_train, control = control)
-                         }
-                       },
-                       "caret" = {
-                         if (is.null(control)) {
-                           train(formula, data = data_train, method = "rpart")
-                         } else {
-                           train(formula, data = data_train, method = "rpart", control = control)
-                         }
-                       },
-                       stop("Unsupported decision tree model. Choose from: rpart / party / caret / C50")
+  tree_model <- switch(
+    model,
+    "rpart" = {
+      method <- if (task == "regression")
+        "anova"
+      else
+        "class"
+      if (is.null(control)) {
+        rpart(formula, data = data_train, method = method)
+      } else {
+        rpart(formula,
+              data = data_train,
+              control = control,
+              method = method)
+      }
+    },
+    "party" = {
+      if (is.null(control)) {
+        ctree(formula, data = data_train)
+      } else {
+        ctree(formula, data = data_train, control = control)
+      }
+    },
+    "C50" = {
+      if (task == "regression")
+        stop("C50 does not support regression.")
+      if (is.null(control)) {
+        C5.0(formula, data = data_train)
+      } else {
+        C5.0(formula, data = data_train, control = control)
+      }
+    },
+    "caret" = {
+      if (is.null(control)) {
+        train(formula, data = data_train, method = "rpart")
+      } else {
+        train(formula,
+              data = data_train,
+              method = "rpart",
+              control = control)
+      }
+    },
+    stop(
+      "Unsupported decision tree model. Choose from: rpart / party / caret / C50"
+    )
   )
 
   # Convert all tree models to party object
 
-  fit <- switch(model,
-                "party" = tree_model,
-                "rpart" = partykit::as.party(tree_model),
-                "C50" = partykit::as.party(tree_model),
-                "caret" = partykit::as.party(tree_model$finalModel)
+  fit <- switch(
+    model,
+    "party" = tree_model,
+    "rpart" = partykit::as.party(tree_model),
+    "C50" = partykit::as.party(tree_model),
+    "caret" = partykit::as.party(tree_model$finalModel)
   )
 
   # Compute variable importance
-  var_imp <- switch(model,
-                    "rpart" = {
-                      tmp <- tempfile()
-                      sink(tmp); s <- summary(tree_model); sink()
-                      var_imp <- s$variable.importance
-                    },
-                    "party" = {
-                      partykit::varimp(tree_model)
-                    },
-                    "C50" = {
-                      C50::C5imp(tree_model, metric = "usage")[ , "Overall"]
-                    },
-                    "caret" = {
-                      summary(tree_model)$variable.importance
-                    }
+  var_imp <- switch(
+    model,
+    "rpart" = {
+      tmp <- tempfile()
+      sink(tmp)
+      s <- summary(tree_model)
+      sink()
+      var_imp <- s$variable.importance
+    },
+    "party" = {
+      partykit::varimp(tree_model)
+    },
+    "C50" = {
+      C50::C5imp(tree_model, metric = "usage")[, "Overall"]
+    },
+    "caret" = {
+      summary(tree_model)$variable.importance
+    }
   )
   var_imp <- round(var_imp / sum(var_imp), 2)
 
-  list(
-    fit     = fit,
-    var_imp = var_imp
-  )
+  list(fit     = fit, var_imp = var_imp)
 }

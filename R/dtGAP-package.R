@@ -1,3 +1,11 @@
+utils::globalVariables(c(
+  ".estimate", ".metric", "HC", "Sample", "child_label", "data_type",
+  "dist", "id", "kids", "level", "na.omit", "node_id", "p.value",
+  "parent", "parent_label", "prob_text", "recalculated_nodesize",
+  "setNames", "splitvar", "x", "x_child", "x_parent", "y", "y_child",
+  "y_hat", "y_parent"
+))
+
 #' @keywords internal
 "_PACKAGE"
 
@@ -16,6 +24,7 @@
 #'   c_across add_count add_row desc as_tibble n row_number mutate_at vars
 #' @importFrom stringr str_detect str_extract
 #' @importFrom stats as.formula cor sd as.dist order.dendrogram as.dendrogram
+#'   dist na.omit setNames
 #' @importFrom utils combn capture.output modifyList
 #' @importFrom grDevices gray
 #' @importFrom rpart rpart
