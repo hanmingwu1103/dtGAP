@@ -2,9 +2,7 @@
 % Please edit documentation in R/prepare_tree.R
 \name{prepare_tree}
 \alias{prepare_tree}
-\title{This function processes a tree model's output and prepares node and segment data
-for visualization using \code{ggplot2} or other plotting tools. It supports various tree
-model formats such as \code{rpart}, \code{party}, \code{C50}, and \code{caret}.}
+\title{Prepare Tree Plot Data for Visualization}
 \usage{
 prepare_tree(tree_res, model = c("rpart", "party", "C50", "caret"))
 }
@@ -26,16 +24,32 @@ for visualization using \code{ggplot2} or other plotting tools. It supports vari
 model formats such as \code{rpart}, \code{party}, \code{C50}, and \code{caret}.
 }
 \examples{
+\donttest{
 library(rpart)
 library(partykit)
 library(ggparty)
 library(dplyr)
 library(seriation)
-data_all <- add_data_type(data_train = train_covid, data_test = test_covid)
-data <- prepare_features(data_all, target_lab = "Outcome", task = "classification")
-train_tree = train_tree(data_train = train_covid, target_lab = "Outcome", model = "rpart")
-fit = train_tree$fit
-var_imp = train_tree$var_imp
-tree_res = compute_tree(fit, model = "rpart", show ="test", data = data, target_lab = "Outcome", task = "classification")
+data_all <- add_data_type(
+  data_train = train_covid, data_test = test_covid
+)
+data <- prepare_features(
+  data_all,
+  target_lab = "Outcome",
+  task = "classification"
+)
+train_tree <- train_tree(
+  data_train = train_covid,
+  target_lab = "Outcome", model = "rpart"
+)
+fit <- train_tree$fit
+var_imp <- train_tree$var_imp
+tree_res <- compute_tree(
+  fit,
+  model = "rpart", show = "test",
+  data = data, target_lab = "Outcome",
+  task = "classification"
+)
 prepare_tree(tree_res, model = "rpart")
+}
 }

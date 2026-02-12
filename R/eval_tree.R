@@ -12,7 +12,7 @@
 #' @param sorted_dat List. Output from \code{sorted_mat()}.
 #' @param show Character. "train","test", or "all" to select subset before sorting.
 #' @param model Character. Identifier for the model method (e.g., "rpart").
-#' @param test_size Numeric. Proportion of data to assign to testing set when splitting data_all (default 0.3).
+#' @param simple_metrics Logical. If TRUE, use simple metric summary instead of full confusion matrix (default FALSE).
 #' @param col_proximity Character. Correlation method: "pearson","spearman","kendall".
 #' @param linkage_method Character. Linkage for supervised distance: "CT","SG","CP".
 #' @param seriate_method Character. Seriation method for distance objects; see
@@ -26,26 +26,48 @@
 #' @export
 #'
 #' @examples
+#' \donttest{
 #' library(rpart)
 #' library(partykit)
 #' library(ggparty)
 #' library(dplyr)
 #' library(seriation)
-#' data_all <- add_data_type(data_train = train_covid, data_test = test_covid)
-#' data <- prepare_features(data_all, target_lab = "Outcome", task = "classification")
-#' train_tree = train_tree(data_train = train_covid, target_lab = "Outcome", model = "rpart")
-#' fit = train_tree$fit
-#' var_imp = train_tree$var_imp
-#' tree_res = compute_tree(fit, model = "rpart", show ="test", data = data, target_lab = "Outcome", task = "classification")
-#' sorted_dat = sorted_mat(tree_res, target_lab = "Outcome", show = "test")
+#' data_all <- add_data_type(
+#'   data_train = train_covid, data_test = test_covid
+#' )
+#' data <- prepare_features(
+#'   data_all,
+#'   target_lab = "Outcome",
+#'   task = "classification"
+#' )
+#' train_tree <- train_tree(
+#'   data_train = train_covid,
+#'   target_lab = "Outcome", model = "rpart"
+#' )
+#' fit <- train_tree$fit
+#' var_imp <- train_tree$var_imp
+#' tree_res <- compute_tree(
+#'   fit,
+#'   model = "rpart", show = "test",
+#'   data = data, target_lab = "Outcome",
+#'   task = "classification"
+#' )
+#' sorted_dat <- sorted_mat(
+#'   tree_res,
+#'   target_lab = "Outcome", show = "test"
+#' )
 #' # Case 1: Pass the dataset name
-#' eval_tree(x = "covid", fit = fit, tree_res = tree_res, target_lab = "Outcome", sorted_dat = sorted_dat, show ="test", model = "rpart")
-#' # Case 2: NOT Pass the dataset name
-#' eval_tree(data_train = train_covid, data_test = test_covid, fit = fit, tree_res = tree_res, target_lab = "Outcome", sorted_dat = sorted_dat, show ="test", model = "rpart")
-
-
+#' eval_tree(
+#'   x = "covid", fit = fit,
+#'   task = "classification",
+#'   tree_res = tree_res,
+#'   target_lab = "Outcome",
+#'   sorted_dat = sorted_dat,
+#'   show = "test", model = "rpart"
+#' )
+#' }
 eval_tree <- function(x = NULL,
-                      fit= NULL,
+                      fit = NULL,
                       task = c("classification", "regression"),
                       tree_res = NULL,
                       target_lab = NULL,
@@ -56,7 +78,6 @@ eval_tree <- function(x = NULL,
                       linkage_method = c("CT", "SG", "CP"),
                       seriate_method = "TSP",
                       simple_metrics = FALSE) {
-
   task <- match.arg(task)
   show <- match.arg(show)
   model <- match.arg(model)
@@ -64,36 +85,55 @@ eval_tree <- function(x = NULL,
   linkage_method <- match.arg(linkage_method)
   valid_methods <- seriation::list_seriation_methods("dist")
   if (!(seriate_method %in% valid_methods)) {
-    stop("`seriate_method` must be one of: ", paste(valid_methods, collapse = ", "))
+    stop("`seriate_method` must be one of: ",
+         paste(valid_methods, collapse = ", "))
   }
 
   dat <- tree_res$dat
   if (show == "all") {
     pred_train <- subset(dat, data_type == "train")
-    pred_test  <- subset(dat, data_type == "test")
+    pred_test <- subset(dat, data_type == "test")
   } else if (show == "train") {
-    pred_train <- dat; pred_test <- NULL
+    pred_train <- dat
+    pred_test <- NULL
   } else {
-    pred_train <- NULL; pred_test <- dat
+    pred_train <- NULL
+    pred_test <- dat
   }
-  train_size <- if (!is.null(pred_train)) nrow(pred_train) else nrow(fit$data)
-  test_size  <- if (!is.null(pred_test))  nrow(pred_test)  else NA
+  train_size <- if (!is.null(pred_train))
+    nrow(pred_train)
+  else
+    nrow(fit$data)
+  test_size <- if (!is.null(pred_test))
+    nrow(pred_test)
+  else
+    NA
 
   cRGAR_score <- sprintf("%.2f", sorted_dat$cRGAR_score)
   data_info <- paste0(
-    "Dataset: ", x, " | Model: ", model,
-    " | Train size: ", train_size,
-    if (!is.na(test_size)) paste0(" | Test size: ", test_size), "\n",
-    if (!is.null(sorted_dat$col_pro_mat_sorted)) paste0("Column proximity: ", col_proximity),
-    if (!is.null(sorted_dat$row_pro_mat_sorted)) paste0(" | Linkage: ", linkage_method),
-    if(!is.null(sorted_dat$row_pro_mat_sorted) && !is.null(sorted_dat$col_pro_mat_sorted))
+    "Dataset: ",
+    x,
+    " | Model: ",
+    model,
+    " | Train size: ",
+    train_size,
+    if (!is.na(test_size))
+      paste0(" | Test size: ", test_size),
+    "\n",
+    if (!is.null(sorted_dat$col_pro_mat_sorted))
+      paste0("Column proximity: ", col_proximity),
+    if (!is.null(sorted_dat$row_pro_mat_sorted))
+      paste0(" | Linkage: ", linkage_method),
+    if (!is.null(sorted_dat$row_pro_mat_sorted) &&
+        !is.null(sorted_dat$col_pro_mat_sorted)) {
       paste0(" | Seriate: ", seriate_method, " | cRGAR: ", cRGAR_score, "\n")
+    }
   )
 
 
   calc_cm <- function(df) {
     df[[target_lab]] <- factor(df[[target_lab]])
-    df$y_hat        <- factor(df$y_hat)
+    df$y_hat <- factor(df$y_hat)
     cm <- caret::confusionMatrix(df$y_hat, df[[target_lab]])
     paste(capture.output(cm), collapse = "\n")
   }
@@ -108,29 +148,23 @@ eval_tree <- function(x = NULL,
       yardstick::recall,
       yardstick::specificity
     )
-    metrics(df, truth = !!rlang::sym(target_lab), estimate = y_hat) %>%
-      dplyr::transmute(print_metric = paste(
-        toupper(.metric),
-        format(.estimate, digits = 3),
-        sep = ": "
-      )) %>%
+    metrics(df,
+            truth = !!rlang::sym(target_lab),
+            estimate = y_hat) %>%
+      dplyr::transmute(print_metric = paste(toupper(.metric), format(.estimate, digits = 3), sep = ": ")) %>%
       dplyr::pull() %>%
       paste(collapse = "\n")
   }
 
   calc_simple_reg <- function(df) {
-    metrics <- yardstick::metric_set(
-      yardstick::rsq,
-      yardstick::mae,
-      yardstick::rmse,
-      yardstick::ccc
-    )
-    metrics(df, truth = !!rlang::sym(target_lab), estimate = y_hat) %>%
-      dplyr::transmute(print_metric = paste(
-        toupper(.metric),
-        format(.estimate, digits = 3),
-        sep = ": "
-      )) %>%
+    metrics <- yardstick::metric_set(yardstick::rsq,
+                                     yardstick::mae,
+                                     yardstick::rmse,
+                                     yardstick::ccc)
+    metrics(df,
+            truth = !!rlang::sym(target_lab),
+            estimate = y_hat) %>%
+      dplyr::transmute(print_metric = paste(toupper(.metric), format(.estimate, digits = 3), sep = ": ")) %>%
       dplyr::pull() %>%
       paste(collapse = "\n")
   }
@@ -143,7 +177,8 @@ eval_tree <- function(x = NULL,
       } else {
         paste("Train Metrics:", calc_cm(pred_train), sep = "\n")
       }
-    } else {  # regression
+    } else {
+      # regression
       train_metrics <- paste("Train Metrics:", calc_simple_reg(pred_train), sep = "\n")
     }
   }
@@ -156,7 +191,8 @@ eval_tree <- function(x = NULL,
       } else {
         paste("Test Metrics:", calc_cm(pred_test), sep = "\n")
       }
-    } else {  # regression
+    } else {
+      # regression
       test_metrics <- paste("Test Metrics:", calc_simple_reg(pred_test), sep = "\n")
     }
   }
@@ -170,25 +206,13 @@ eval_tree <- function(x = NULL,
 
 
 #' Draw Text Indicator on Grid Graphics
-#'
-#' @description
-#' Renders a text label at specified x/y positions in mm on a grid viewport.
-#'
-#' @param text_eval Character. Text to render.
-#' @param x_eval Numeric. X-position in mm from left (default 15).
-#' @param y_eval Numeric. Y-position in mm from bottom (default NULL).
-#' @param size Numeric. Font size in points (default 7).
-#' @param lineheight Numeric. Line spacing multiplier (default 1.2).
-#' @param just Character. Justification: "left", "center", or "right" (default "left").
-#'
-#' @return Invisibly returns NULL after drawing text.
-#'
-draw_indicator<- function(text_eval,
-                          x_eval    = 15,
-                          y_eval    = NULL,
-                          size      = 7,
-                          lineheight= 1.2,
-                          just      = "left") {
+#' @noRd
+draw_indicator <- function(text_eval,
+                           x_eval = 15,
+                           y_eval = NULL,
+                           size = 7,
+                           lineheight = 1.2,
+                           just = "left") {
   grid.text(
     label = text_eval,
     x     = unit(x_eval, "mm"),
@@ -197,4 +221,3 @@ draw_indicator<- function(text_eval,
     just  = just
   )
 }
-

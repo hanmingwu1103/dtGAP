@@ -47,27 +47,4 @@ A configured \code{Heatmap} object.
 \description{
 Combines sorted data matrix and provided annotations into a single Heatmap.
 }
-\examples{
-library(rpart)
-library(partykit)
-library(ggparty)
-library(dplyr)
-library(seriation)
-library(ComplexHeatmap)
-library(circlize)
-data_all <- add_data_type(data_train = train_covid, data_test = test_covid)
-data <- prepare_features(data_all, target_lab = "Outcome", task = "classification")
-train_tree = train_tree(data_train = train_covid, target_lab = "Outcome", model = "rpart")
-fit = train_tree$fit
-var_imp = train_tree$var_imp
-tree_res = compute_tree(fit, model = "rpart", show ="test", data = data, target_lab = "Outcome", task = "classification")
-sorted_dat = sorted_mat(tree_res, target_lab = "Outcome", show = "test")
-split_vec = get_split_vec(sorted_dat, tree_res)
-layout = compute_layout(sorted_dat)
-row_prop_ha = row_prop_anno(sorted_dat, layout, split_vec)
-pred_ha = prediction_annotation(sorted_dat,target_lab = "Outcome",
-                                label_map = c("0" = "Survival", "1" = "Death"),
-                                label_map_colors = c("Survival" = "#50046d", "Death" = "#fcc47f"))
-make_main_heatmap(sorted_dat, split_vec, pred_ha, row_prop_ha, layout)
-}
 \keyword{internal}

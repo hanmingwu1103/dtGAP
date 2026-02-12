@@ -43,7 +43,7 @@ eval_tree(
 \item{seriate_method}{Character. Seriation method for distance objects; see
 \code{seriation::list_seriation_methods("dist")} for all supported options. Default: \code{"TSP"}.}
 
-\item{test_size}{Numeric. Proportion of data to assign to testing set when splitting data_all (default 0.3).}
+\item{simple_metrics}{Logical. If TRUE, use simple metric summary instead of full confusion matrix (default FALSE).}
 }
 \value{
 A list with elements:
@@ -56,20 +56,44 @@ Generates summary information and confusion matrix metrics for training and/or t
 based on a fitted decision tree and sorted matrix results.
 }
 \examples{
+\donttest{
 library(rpart)
 library(partykit)
 library(ggparty)
 library(dplyr)
 library(seriation)
-data_all <- add_data_type(data_train = train_covid, data_test = test_covid)
-data <- prepare_features(data_all, target_lab = "Outcome", task = "classification")
-train_tree = train_tree(data_train = train_covid, target_lab = "Outcome", model = "rpart")
-fit = train_tree$fit
-var_imp = train_tree$var_imp
-tree_res = compute_tree(fit, model = "rpart", show ="test", data = data, target_lab = "Outcome", task = "classification")
-sorted_dat = sorted_mat(tree_res, target_lab = "Outcome", show = "test")
+data_all <- add_data_type(
+  data_train = train_covid, data_test = test_covid
+)
+data <- prepare_features(
+  data_all,
+  target_lab = "Outcome",
+  task = "classification"
+)
+train_tree <- train_tree(
+  data_train = train_covid,
+  target_lab = "Outcome", model = "rpart"
+)
+fit <- train_tree$fit
+var_imp <- train_tree$var_imp
+tree_res <- compute_tree(
+  fit,
+  model = "rpart", show = "test",
+  data = data, target_lab = "Outcome",
+  task = "classification"
+)
+sorted_dat <- sorted_mat(
+  tree_res,
+  target_lab = "Outcome", show = "test"
+)
 # Case 1: Pass the dataset name
-eval_tree(x = "covid", fit = fit, tree_res = tree_res, target_lab = "Outcome", sorted_dat = sorted_dat, show ="test", model = "rpart")
-# Case 2: NOT Pass the dataset name
-eval_tree(data_train = train_covid, data_test = test_covid, fit = fit, tree_res = tree_res, target_lab = "Outcome", sorted_dat = sorted_dat, show ="test", model = "rpart")
+eval_tree(
+  x = "covid", fit = fit,
+  task = "classification",
+  tree_res = tree_res,
+  target_lab = "Outcome",
+  sorted_dat = sorted_dat,
+  show = "test", model = "rpart"
+)
+}
 }

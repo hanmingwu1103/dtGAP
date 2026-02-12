@@ -185,8 +185,25 @@ dtGAP bridges this gap by introducing matrix-based visualizations—such as the 
 This offers a more comprehensive and interpretable representation of decision-making processes in tree-based models.
 }
 \examples{
+\donttest{
 # Case 1: test_covid
-dtGAP(data_train = train_covid, data_test = test_covid, target_lab = "Outcome", show = "test", label_map = c("0" = "Survival", "1" = "Death"), label_map_colors = c("Survival" = "#50046d", "Death" = "#fcc47f"), raw_value_col = colorRampPalette(c("#33286b", "#26828e", "#75d054", "#fae51f"))(9))
+dtGAP(
+  data_train = train_covid,
+  data_test = test_covid,
+  target_lab = "Outcome", show = "test",
+  label_map = c("0" = "Survival", "1" = "Death"),
+  label_map_colors = c(
+    "Survival" = "#50046d", "Death" = "#fcc47f"
+  ),
+  raw_value_col = colorRampPalette(
+    c("#33286b", "#26828e", "#75d054", "#fae51f")
+  )(9)
+)
 # Case 2: Psychosis_Disorder
-dtGAP(data_all = Psychosis_Disorder, model = "party", show = "all", trans_type = "none", target_lab = "UNIQID")
+dtGAP(
+  data_all = Psychosis_Disorder,
+  model = "party", show = "all",
+  trans_type = "none", target_lab = "UNIQID"
+)
+}
 }

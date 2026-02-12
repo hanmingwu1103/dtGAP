@@ -17,27 +17,15 @@ add_data_type(
 
 \item{data_test}{A data frame of testing observations (or \code{NULL}).}
 
-\item{data_all}{A data frame of all observations (or \code{NULL}); if supplied
-without a \code{data_type} column, it will be split.}
+\item{data_all}{A data frame of all observations (or \code{NULL}).}
 
-\item{test_size}{Numeric in (0,1), Proportion of data to assign to testing set
-when splitting data_all (default 0.3).}
+\item{test_size}{Numeric in (0,1). Proportion for testing (default 0.3).}
 
-\item{seed}{Integer. Random seed used when splitting \code{data_all}
-(default 42). The global RNG state is restored after use.}
+\item{seed}{Integer. Random seed for splitting (default 42).}
 }
 \value{
-A single data frame with the same columns as the input data plus
-a new factor column \code{data_type} with levels \code{c("train","test")}.
+A data frame with a \code{data_type} factor column.
 }
 \description{
-This helper binds or splits input dataframes to produce a single
-\code{data_all} with a factor column \code{data_type} indicating "train" or "test".
-}
-\details{
-\itemize{
-\item If \code{data_all} is \code{NULL}, both \code{data_train} and \code{data_test} \strong{must} be provided;
-these are simply row‑tagged and bound together.
-\item If \code{data_all} is provided, it is randomly split into train/test according to \code{split_size}.
-}
+Assigns a train/test indicator to a combined dataset
 }

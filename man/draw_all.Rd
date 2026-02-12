@@ -51,34 +51,8 @@ a heatmap, and optional evaluation results. It is designed for use in
 reporting classification or clustering trees with additional visual indicators.
 }
 \examples{
-library(rpart)
-library(partykit)
-library(ggparty)
-library(dplyr)
-library(seriation)
-library(ComplexHeatmap)
-library(circlize)
-data_all <- add_data_type(data_train = train_covid, data_test = test_covid)
-data <- prepare_features(data_all, target_lab = "Outcome", task = "classification")
-train_tree = train_tree(data_train = train_covid, target_lab = "Outcome", model = "rpart")
-fit = train_tree$fit
-var_imp = train_tree$var_imp
-tree_res = compute_tree(fit, model = "rpart", show ="test", data = data, target_lab = "Outcome", task = "classification")
-sorted_dat = sorted_mat(tree_res, target_lab = "Outcome", show = "test")
-split_vec = get_split_vec(sorted_dat, tree_res)
-layout = compute_layout(sorted_dat)
-row_prop_ha = row_prop_anno(sorted_dat, layout, split_vec)
-pred_ha = prediction_annotation(sorted_dat,target_lab = "Outcome",
-                                label_map = c("0" = "Survival", "1" = "Death"),
-                                label_map_colors = c("Survival" = "#50046d", "Death" = "#fcc47f"))
-eval_res = eval_tree(x = "covid", tree_res, target_lab = "Outcome", sorted_dat, show ="test", model = "rpart")
-main_ht = make_main_heatmap(sorted_dat, split_vec, pred_ha, row_prop_ha, layout)
-col_ht = col_ht(fit, sorted_dat, var_imp, layout)
-combined_heatmap <- col_ht \%v\% main_ht
-pals = my_get_palettes()
-legends = generate_legend_bundle(sorted_dat = sorted_dat, type_cols = pals$type_cols, label_cols = pals$label_cols, prop_cols = pals$prop_cols,
-           col_mat = pals$col_mat, col_Col_Proximity = pals$col_Col_Proximity, col_Row_Proximity = pals$col_Row_Proximity)
-heat = grid.grabExpr(draw(combined_heatmap, heatmap_legend_list = legends, auto_adjust = FALSE, ht_gap = unit(0, "mm"), newpage = FALSE))
-prepare_tree = prepare_tree(tree_res, model = "rpart")
-draw_all(prepare_tree = prepare_tree, heat = heat, layout = layout, eval_res = eval_res)
+\donttest{
+# See dtGAP() for a full end-to-end example
+# that internally calls draw_all().
+}
 }

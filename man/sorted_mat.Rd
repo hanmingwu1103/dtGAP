@@ -51,18 +51,39 @@ A list with:
 Orders samples and features based on tree-derived node grouping and correlation-based seriation.
 }
 \examples{
+\donttest{
 library(rpart)
 library(partykit)
 library(ggparty)
 library(dplyr)
 library(seriation)
-
-data <- add_data_type(data_all = Psychosis_Disorder)
-data <- prepare_features(data, target_lab = "UNIQID", task = "classification")
-fit = train_tree(data = data, target_lab = "UNIQID", model = "rpart")$fit
-tree_res = compute_tree(fit, model = "rpart", show='all', data = data, target_lab = "UNIQID", task = "classification")
-sorted_dat = sorted_mat(tree_res,target_lab='UNIQID', show='all', trans_type = "none",seriate_method = "GW_average",sort_by_data_type = FALSE)
+data <- add_data_type(
+  data_all = Psychosis_Disorder
+)
+data <- prepare_features(
+  data,
+  target_lab = "UNIQID",
+  task = "classification"
+)
+fit <- train_tree(
+  data = data, target_lab = "UNIQID",
+  model = "rpart"
+)$fit
+tree_res <- compute_tree(
+  fit,
+  model = "rpart", show = "all",
+  data = data, target_lab = "UNIQID",
+  task = "classification"
+)
+sorted_dat <- sorted_mat(
+  tree_res,
+  target_lab = "UNIQID",
+  show = "all", trans_type = "none",
+  seriate_method = "GW_average",
+  sort_by_data_type = FALSE
+)
 sorted_dat$row_pro_mat_sorted
 sorted_dat$col_pro_mat_sorted
 sorted_dat$cRGAR_score
+}
 }

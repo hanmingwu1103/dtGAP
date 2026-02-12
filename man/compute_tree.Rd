@@ -47,11 +47,30 @@ including layout positions and terminal node summaries.
 need to run util.R first
 }
 \examples{
+\donttest{
 library(rpart)
 library(partykit)
 library(ggparty)
 library(dplyr)
-
+data <- add_data_type(
+  data_all = Psychosis_Disorder
+)
+data <- prepare_features(
+  data,
+  target_lab = "UNIQID",
+  task = "classification"
+)
+fit <- train_tree(
+  data = data, target_lab = "UNIQID",
+  model = "rpart"
+)$fit
+tree_res <- compute_tree(
+  fit,
+  model = "rpart", show = "all",
+  data = data, target_lab = "UNIQID",
+  task = "classification"
+)
 tree_res$dat
 tree_res$plot_data
+}
 }

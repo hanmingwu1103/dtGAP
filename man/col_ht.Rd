@@ -54,23 +54,4 @@ A \code{Heatmap} object from ComplexHeatmap.
 Constructs a ComplexHeatmap object displaying feature-feature correlations
 with optional variable importance barplots and split-variable highlighting.
 }
-\examples{
-
-library(rpart)
-library(partykit)
-library(ggparty)
-library(dplyr)
-library(seriation)
-library(ComplexHeatmap)
-library(circlize)
-data_all <- add_data_type(data_train = train_covid, data_test = test_covid)
-data <- prepare_features(data_all, target_lab = "Outcome", task = "classification")
-train_tree = train_tree(data_train = train_covid, target_lab = "Outcome", model = "rpart")
-fit = train_tree$fit
-var_imp = train_tree$var_imp
-tree_res = compute_tree(fit, model = "rpart", show ="test", data = data, target_lab = "Outcome", task = "classification")
-sorted_dat = sorted_mat(tree_res, target_lab = "Outcome", show = "test")
-layout = compute_layout(sorted_dat)
-col_ht(fit, sorted_dat, var_imp, layout)
-}
 \keyword{internal}

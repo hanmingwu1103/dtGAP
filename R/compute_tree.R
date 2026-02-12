@@ -23,29 +23,40 @@
 #' @export
 #'
 #' @examples
+#' \donttest{
 #' library(rpart)
 #' library(partykit)
 #' library(ggparty)
 #' library(dplyr)
-#'
-# data <- add_data_type(data_all = Psychosis_Disorder)
-# data <- prepare_features(data, target_lab = "UNIQID", task = "classification")
-# fit = train_tree(data = data, target_lab = "UNIQID", model = "rpart")$fit
-# tree_res = compute_tree(fit, model = "rpart", show='all', data = data, target_lab = "UNIQID", task = "classification")
+#' data <- add_data_type(
+#'   data_all = Psychosis_Disorder
+#' )
+#' data <- prepare_features(
+#'   data,
+#'   target_lab = "UNIQID",
+#'   task = "classification"
+#' )
+#' fit <- train_tree(
+#'   data = data, target_lab = "UNIQID",
+#'   model = "rpart"
+#' )$fit
+#' tree_res <- compute_tree(
+#'   fit,
+#'   model = "rpart", show = "all",
+#'   data = data, target_lab = "UNIQID",
+#'   task = "classification"
+#' )
 #' tree_res$dat
 #' tree_res$plot_data
-
-compute_tree <- function(
-    fit = NULL,
-    model = c("rpart", "party", "C50", "caret"),
-    show = c("all", "train", "test"),
-    data = NULL,
-    target_lab = NULL,
-    task = c("classification", "regression"),
-    custom_layout = NULL,
-    panel_space = 0.001
-) {
-
+#' }
+compute_tree <- function(fit = NULL,
+                         model = c("rpart", "party", "C50", "caret"),
+                         show = c("all", "train", "test"),
+                         data = NULL,
+                         target_lab = NULL,
+                         task = c("classification", "regression"),
+                         custom_layout = NULL,
+                         panel_space = 0.001) {
   model <- match.arg(model)
   show <- match.arg(show)
   task <- match.arg(task)
@@ -60,32 +71,29 @@ compute_tree <- function(
 
   layout <- position_nodes(plot_data, term_dat, custom_layout, panel_space)
   plot_data <- plot_data %>%
-    left_join(node_size_df, by = "id")%>%
+    left_join(node_size_df, by = "id") %>%
     dplyr::select(-x, -y) %>%
     left_join(layout, by = "id")
 
   # add class probability information
   if (task == "classification" && model == "rpart") {
-    class_prob <- compute_class_prob(plot_data,dat,target_lab)
+    class_prob <- compute_class_prob(plot_data, dat, target_lab)
     plot_data <- plot_data %>%
       left_join(class_prob, by = "id")
   }
 
   # add break_label
-  plot_data$breaks_clean <- sapply(
-    plot_data$breaks_label,
-    function(label) {
-      if (all(is.na(label))) {
-        return("NA")
-      } else if (all(!str_detect(label, "\\d"))) {
-        return(paste(label, collapse = ", "))
-      } else {
-        op <- str_extract(label, "<=|>=|<|>")
-        val <- round(as.numeric(str_extract(label, "\\d+\\.?\\d*")),2)
-        return(paste0(op, " ", val))
-      }
+  plot_data$breaks_clean <- sapply(plot_data$breaks_label, function(label) {
+    if (all(is.na(label))) {
+      return("NA")
+    } else if (all(!str_detect(label, "\\d"))) {
+      return(paste(label, collapse = ", "))
+    } else {
+      op <- str_extract(label, "<=|>=|<|>")
+      val <- round(as.numeric(str_extract(label, "\\d+\\.?\\d*")), 2)
+      return(paste0(op, " ", val))
     }
-  )
+  })
 
   list(
     fit = fit,
@@ -96,18 +104,8 @@ compute_tree <- function(
 }
 
 #' Compute Class Probability Distributions for Tree Nodes
-#'
-#' @description
-#' Aggregates class counts from leaf nodes up to the root and computes per-node class probabilities.
-#'
-#' @param plot_data Data.frame from ggparty::ggparty(fit)$data containing node structure.
-#' @param dat Data.frame of observations including node assignments (node_id) and true labels.
-#' @param target_lab Character. Column name in dat for true class labels.
-#'
-#' @return Data.frame with columns: id and prob_<class> for each class.
-#'
+#' @noRd
 compute_class_prob <- function(plot_data, dat, target_lab) {
-
   classes <- sort(unique(dat[[target_lab]]))
   n_class <- length(classes)
   summary_list <- list()
@@ -119,27 +117,26 @@ compute_class_prob <- function(plot_data, dat, target_lab) {
     node_data <- dat %>% filter(node_id == cur_node)
 
     if (nrow(node_data) == 0) {
-      summary_list[[as.character(cur_node)]] <- list(
-        count = 0,
-        class_counts = setNames(rep(0, n_class), classes)
-      )
+      summary_list[[as.character(cur_node)]] <- list(count = 0,
+                                                     class_counts = setNames(rep(0, n_class), classes))
     } else {
       counts <- nrow(node_data)
       cnts <- table(factor(node_data[[target_lab]], levels = classes))
       cnts <- as.numeric(cnts)
       names(cnts) <- classes
-      summary_list[[as.character(cur_node)]] <- list(
-        count = counts,
-        class_counts = cnts
-      )
+      summary_list[[as.character(cur_node)]] <- list(count = counts, class_counts = cnts)
     }
   }
 
-  internal_nodes <- plot_data %>% filter(kids != 0) %>% arrange(desc(level))
+  internal_nodes <- plot_data %>%
+    filter(kids != 0) %>%
+    arrange(desc(level))
 
   for (i in seq_len(nrow(internal_nodes))) {
     cur_node <- internal_nodes$id[i]
-    child_ids <- plot_data %>% filter(parent == cur_node) %>% pull(id)
+    child_ids <- plot_data %>%
+      filter(parent == cur_node) %>%
+      pull(id)
     total_count <- 0
     total_class_counts <- setNames(rep(0, n_class), classes)
     for (child in child_ids) {
@@ -150,10 +147,7 @@ compute_class_prob <- function(plot_data, dat, target_lab) {
       }
     }
 
-    summary_list[[as.character(cur_node)]] <- list(
-      count = total_count,
-      class_counts = total_class_counts
-    )
+    summary_list[[as.character(cur_node)]] <- list(count = total_count, class_counts = total_class_counts)
   }
 
 
@@ -177,27 +171,24 @@ compute_class_prob <- function(plot_data, dat, target_lab) {
 
 # ------------------------------------------------------------------------------------
 #' Calculate Node Sizes Based on Terminal Counts
-#'
-#' @description
-#' Computes new node sizes by summing child node counts recursively from leaves to root.
-#'
-#' @param plot_data Data.frame from ggparty::ggparty(fit)$data containing node structure.
-#' @param term_dat Data.frame of terminal nodes including id and count column n.
-#'
-#' @return Data.frame with columns id and recalculated_nodesize.
-#'
+#' @noRd
 
 recalculate_nodesize <- function(plot_data, term_dat) {
+  node_size_df <- term_dat %>%
+    dplyr::select(id, n) %>%
+    rename(recalculated_nodesize = n)
 
-  node_size_df <- term_dat %>% dplyr::select(id, n) %>% rename(recalculated_nodesize = n)
-
-  internal_nodes <- plot_data %>% filter(kids != 0) %>% arrange(desc(level)) # Process from bottom up levels
+  internal_nodes <- plot_data %>%
+    filter(kids != 0) %>%
+    arrange(desc(level)) # Process from bottom up levels
 
   for (i in 1:nrow(internal_nodes)) {
     parent_id <- internal_nodes$id[i]
     child_ids <- plot_data$id[plot_data$parent == parent_id]
 
-    children_nodesize <- node_size_df %>% filter(id %in% child_ids) %>% pull(recalculated_nodesize)
+    children_nodesize <- node_size_df %>%
+      filter(id %in% child_ids) %>%
+      pull(recalculated_nodesize)
     parent_nodesize <- sum(children_nodesize)
 
     node_size_df <- node_size_df %>%
@@ -211,34 +202,28 @@ recalculate_nodesize <- function(plot_data, term_dat) {
 
 # ------------------------------------------------------------------------------------
 #' Apply the predicted tree on either new test data or training data.
-#'
-#' dplyr::select features with p-value (computed from decision tree) < `p_thres`
-#' or all features if `show_all_feats == TRUE`.
-#'
-#' @param fit constparty object of the decision tree.
-#' @param task Character. Task type: "classification" or "regression".
-#' @param data A data.frame containing the features and target for prediction.
-#'
-#' @references
-#' \url{https://github.com/trangdata/treeheatr/blob/85be4a61e35a62285c95b553f03729721bb18a0b/R/utils.R}
-#' @return A dataframe of prediction values with scaled columns
-#' and clustered samples.
-#'
+#' @noRd
 prediction_df <- function(fit, task, data) {
   data <- stats::na.omit(data)
   node_pred <- stats::predict(fit, newdata = data, type = "node")
-  y_pred <- stats::predict(fit, newdata = data, type = "response", simplify = FALSE) %>%
+  y_pred <- stats::predict(fit,
+                           newdata = data,
+                           type = "response",
+                           simplify = FALSE) %>%
     .simplify_pred(id = node_pred, nam = as.character(node_pred))
 
   data_pred <- data %>%
     cbind(node_id = node_pred, y_hat = y_pred)
 
-  if(task == "regression"){
+  if (task == "regression") {
     data_pred$y_hat <- round(data_pred$y_hat)
   }
 
   if (task == "classification") {
-    y_prob <- stats::predict(fit, newdata = data, type = "prob", simplify = FALSE) %>%
+    y_prob <- stats::predict(fit,
+                             newdata = data,
+                             type = "prob",
+                             simplify = FALSE) %>%
       .simplify_pred(id = node_pred, nam = as.character(node_pred))
     data_pred <- cbind(data_pred, y_prob)
   }
@@ -248,23 +233,12 @@ prediction_df <- function(fit, task, data) {
     mutate(Sample = row_number())
 
   data_pred
-
 }
 
 
 # ------------------------------------------------------------------------------------
 #' Determines terminal node position.
-#'
-#' Create node layout using a bottom-up approach (literally) and
-#' overwrites ggparty-precomputed positions in plot_data.
-#'
-#' @param plot_data Dataframe output of `ggparty:::get_plot_data()`.
-#' @param dat Dataframe of prediction values with scaled columns
-#'
-#' @references
-#' \url{https://github.com/trangdata/treeheatr/blob/85be4a61e35a62285c95b553f03729721bb18a0b/R/utils.R}
-#' @return Dataframe with terminal node information.
-#'
+#' @noRd
 term_node_pos <- function(plot_data, dat) {
   node_labels <- dat %>%
     distinct(Sample, .keep_all = T) %>%
@@ -281,21 +255,11 @@ term_node_pos <- function(plot_data, dat) {
 
 
 #' Compute Smart Node Layout
-#'
-#' @description
-#' Generates a bottom-up layout for tree nodes, optionally applying a custom layout.
-#' Modified from treeheatr:::.compute_tree()
-#' \url{https://github.com/trangdata/treeheatr/blob/85be4a61e35a62285c95b553f03729721bb18a0b/R/utils.R}
-#'
-#'
-#' @param plot_data Data.frame from ggparty::ggparty(fit)$data.
-#' @param term_dat Data.frame from term_node_pos() with id and n columns.
-#' @param custom_layout Optional data.frame with id, x, and y for manual override.
-#' @param panel_space Numeric spacing factor between panels.
-#'
-#' @return Data.frame with columns id, x, y for all nodes.
-#'
-position_nodes <- function(plot_data, term_dat, custom_layout , panel_space) {
+#' @noRd
+position_nodes <- function(plot_data,
+                           term_dat,
+                           custom_layout,
+                           panel_space) {
   node_size <- term_dat$n
   max_level <- max(plot_data$level)
 
@@ -342,4 +306,3 @@ position_nodes <- function(plot_data, term_dat, custom_layout , panel_space) {
 
   adj_plot_data %>% dplyr::select(id, x, y)
 }
-
