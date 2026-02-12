@@ -31,13 +31,11 @@ knitr::opts_chunk$set(
 library(dtGAP)
 ```
 
-$$\\[0.3in]$$
 
 # Introduction
 
-Decision trees are prized for their simplicity and interpretability but often fail to reveal underlying data structures. Generalized Association Plots (GAP) excel at illustrating complex associations yet are typically unsupervised. We introduce `dtGAP`, a novel framework that embeds **supervised correlation** and distance measures into GAP for enriched **decision-tree visualization**. `dtGAP` offers confusion matrix maps, decision-tree matrix maps, predicted class membership maps, and evaluation panels. The `dtGAP` package is currently available on the Comprehensive R Archive Network (CRAN) at (<https://CRAN.R-project.org/package=dtGAP>) and (<https://hmwu.idv.tw/dtGAP>).
+Decision trees are prized for their simplicity and interpretability but often fail to reveal underlying data structures. Generalized Association Plots (GAP) excel at illustrating complex associations yet are typically unsupervised. We introduce `dtGAP`, a novel framework that embeds **supervised correlation** and distance measures into GAP for enriched **decision-tree visualization**. `dtGAP` offers confusion matrix maps, decision-tree matrix maps, predicted class membership maps, and evaluation panels. The `dtGAP` package is available on GitHub at (<https://github.com/hanmingwu1103/dtGAP>) and (<https://hmwu.idv.tw/dtGAP>).
 
-**Current version** (build on June 11, 2025): [dtGAP_0.1.1.zip]() $$\\[0.3in]$$
 
 # Quick Start
 
@@ -62,7 +60,6 @@ dtGAP(
 )
 ```
 
-$$\\[0.3in]$$
 
 # Selecting Data Subsets and Tree-Based Models
 
@@ -77,7 +74,7 @@ dtGAP(
 )
 ```
 
-$$\\[0.3in]$$ In contrast, with `model = "party"` (conditional inference trees), `dtGAP` will annotate each internal node with its **split-variable p-value** and display the percentage of samples in each branch. Also, you can **custom label mapping and colors.**
+In contrast, with `model = "party"` (conditional inference trees), `dtGAP` will annotate each internal node with its **split-variable p-value** and display the percentage of samples in each branch. Also, you can **custom label mapping and colors.**
 
 ```{r ex_party, echo=TRUE, fig.height=9, fig.width=16}
 dtGAP(
@@ -88,7 +85,6 @@ dtGAP(
 )
 ```
 
-$$\\[0.3in]$$
 
 # Computing Row and Column Proximity and Seriation
 
@@ -105,7 +101,6 @@ Use any method from `seriation` to reorder rows and columns.
 seriation::list_seriation_methods("dist")
 ```
 
-$$\\[0.3in]$$
 
 Also, when `show = "all"`, use `sort_by_data_type = TRUE` to preserve the original train/test grouping; set it to `FALSE` if you'd rather intermix samples from both sets when ordering.
 
@@ -126,7 +121,6 @@ dtGAP(
 )
 ```
 
-$$\\[0.3in]$$
 
 # Data Information and Metrics
 
@@ -167,7 +161,6 @@ dtGAP(
 )
 ```
 
-$$\\[0.3in]$$
 
 # Train/Test Workflow
 
@@ -189,7 +182,6 @@ dtGAP(
 )
 ```
 
-$$\\[0.3in]$$
 
 ## Apply the learned tree on external/holdout/test/validation dataset
 
@@ -224,7 +216,6 @@ dtGAP(
 )
 ```
 
-$$\\[0.3in]$$
 
 # Regression
 
@@ -242,7 +233,6 @@ dtGAP(
 )
 ```
 
-$$\\[0.3in]$$
 
 # Customization
 
@@ -268,7 +258,7 @@ $$\\[0.3in]$$
 
 Uses `display.brewer.all()` to displays all available RColorBrewer palettes.
 
-$$\\[0.3in]$$ You can customize the color schemes and font sizes in the visualization to match your preferences.
+You can customize the color schemes and font sizes in the visualization to match your preferences.
 
 ```{r ex_custom_colors, echo=TRUE, fig.height=8, fig.width=16}
 dtGAP(
@@ -284,7 +274,6 @@ dtGAP(
 )
 ```
 
-$$\\[0.3in]$$
 
 You can also choose whether to display the row or column proximity.
 
@@ -299,7 +288,6 @@ dtGAP(
 )
 ```
 
-$$\\[0.3in]$$
 
 # Smart Node Layout
 
@@ -332,13 +320,12 @@ dtGAP(
 )
 ```
 
-$$\\[0.3in]$$
 
 # Citation
 
-Han-Ming Wu, Chia-Yu Chang, and Chun-houh Chen (2025), dtGAP: Supervised matrix visualization for decision trees based on the GAP framework. R package version 0.1.0, (<https://CRAN.R-project.org/package=dtGAP>).
+Han-Ming Wu, Chia-Yu Chang, and Chun-houh Chen (2025), dtGAP: Supervised matrix visualization for decision trees based on the GAP framework. R package version 0.0.1, (<https://github.com/hanmingwu1103/dtGAP>).
 
-$$\\[0.1in]$$ **References:**
+**References:**
 
 -   Chen, C. H. (2002). Generalized association plots: Information visualization via iteratively generated correlation matrices. Statistica Sinica, 12, 7-29.
 -   Le, T. T., & Moore, J. H. (2021). Treeheatr: An R package for interpretable decision tree visualizations. Bioinformatics, 37(2), 282-284.
