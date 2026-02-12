@@ -117,7 +117,7 @@ dtGAP(
 
 ## Citation
 
-Wu, H.-M., Chang, C.-Y., & Chen, C.-H. (2025). dtGAP: Supervised matrix visualization for decision trees based on the GAP framework. R package version 0.0.1.
+Wu, H.-M., Chang, C.-Y., & Chen, C.-H. (2025). dtGAP: Supervised matrix visualization for decision trees based on the GAP framework. R package version 0.0.1. <https://github.com/hanmingwu1103/dtGAP>
 
 ### References
 
