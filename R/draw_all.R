@@ -138,8 +138,6 @@ draw_all <- function(prepare_tree,
   for (i in seq_len(nrow(plot_data))) {
     x0 <- plot_data$x[i] * tree_w
     y0 <- plot_data$y[i] * tree_h
-    x_par <- plot_data$x_par[i] * tree_h
-    break_lab <- plot_data$breaks_clean[i]
     lab <- plot_data$node_label[i]
 
     tg <- textGrob(lab, gp = gpar(fontsize = 8))
