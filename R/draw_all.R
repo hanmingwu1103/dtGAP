@@ -1,0 +1,209 @@
+#' Draw Full Visualization: Decision Tree with Heatmap and Evaluation
+#'
+#' This function creates a full-page layout consisting of a decision tree plot,
+#' a heatmap, and optional evaluation results. It is designed for use in
+#' reporting classification or clustering trees with additional visual indicators.
+#'
+#' @param prepare_tree A list returned from a tree preparation function,
+#'   containing `plot_data` and `branches` for tree structure.
+#' @param heat A `grob` object representing the heatmap visualization. Usually generated with `grid.grabExpr(draw(...))`
+#' @param total_w Total width of the drawing in mm. Default is 297 (A4 landscape width).
+#' @param total_h Total height of the drawing in mm. Default is 210 (A4 landscape height).
+#' @param layout A list specifying layout parameters: `tree_w`, `tree_h`, `margin`, and `offset_h`.
+#' @param x_eval_start X-axis starting position (in mm) for evaluation text. Default is 15.
+#' @param y_eval_start Y-axis starting position (in mm) for evaluation text. If NULL, it will be computed automatically.
+#' @param eval_text Font size for the evaluation text. Default is 6.
+#' @param eval_res A list with evaluation result text from `eval_tree()` (including `data_info`, `train_metrics`, and `test_metrics`).
+#' @param print_eval Logical, whether to show evaluation results. Default is TRUE.
+#' @param show_row_prox Logical, whether to show row proximity.
+#' @param show_col_prox Logical, whether to show column proximity.
+#'
+#'
+#' @export
+#'
+#' @examples
+#' library(rpart)
+#' library(partykit)
+#' library(ggparty)
+#' library(dplyr)
+#' library(seriation)
+#' library(ComplexHeatmap)
+#' library(circlize)
+#' data_all <- add_data_type(data_train = train_covid, data_test = test_covid)
+#' data <- prepare_features(data_all, target_lab = "Outcome", task = "classification")
+#' train_tree = train_tree(data_train = train_covid, target_lab = "Outcome", model = "rpart")
+#' fit = train_tree$fit
+#' var_imp = train_tree$var_imp
+#' tree_res = compute_tree(fit, model = "rpart", show ="test", data = data, target_lab = "Outcome", task = "classification")
+#' sorted_dat = sorted_mat(tree_res, target_lab = "Outcome", show = "test")
+#' split_vec = get_split_vec(sorted_dat, tree_res)
+#' layout = compute_layout(sorted_dat)
+#' row_prop_ha = row_prop_anno(sorted_dat, layout, split_vec)
+#' pred_ha = prediction_annotation(sorted_dat,target_lab = "Outcome",
+#'                                 label_map = c("0" = "Survival", "1" = "Death"),
+#'                                 label_map_colors = c("Survival" = "#50046d", "Death" = "#fcc47f"))
+#' eval_res = eval_tree(x = "covid", tree_res, target_lab = "Outcome", sorted_dat, show ="test", model = "rpart")
+#' main_ht = make_main_heatmap(sorted_dat, split_vec, pred_ha, row_prop_ha, layout)
+#' col_ht = col_ht(fit, sorted_dat, var_imp, layout)
+#' combined_heatmap <- col_ht %v% main_ht
+#' pals = my_get_palettes()
+#' legends = generate_legend_bundle(sorted_dat = sorted_dat, type_cols = pals$type_cols, label_cols = pals$label_cols, prop_cols = pals$prop_cols,
+#'            col_mat = pals$col_mat, col_Col_Proximity = pals$col_Col_Proximity, col_Row_Proximity = pals$col_Row_Proximity)
+#' heat = grid.grabExpr(draw(combined_heatmap, heatmap_legend_list = legends, auto_adjust = FALSE, ht_gap = unit(0, "mm"), newpage = FALSE))
+#' prepare_tree = prepare_tree(tree_res, model = "rpart")
+#' draw_all(prepare_tree = prepare_tree, heat = heat, layout = layout, eval_res = eval_res)
+
+
+draw_all <- function(prepare_tree,
+                     heat,
+                     total_w = 297,
+                     total_h = 210,
+                     layout,
+                     x_eval_start = 15,
+                     y_eval_start = NULL,
+                     eval_text = 7,
+                     eval_res = NULL,
+                     print_eval = TRUE,
+                     show_col_prox = TRUE,
+                     show_row_prox = TRUE) {
+
+  plot_data = prepare_tree$plot_data
+  branches = prepare_tree$branches
+  branch_labels = prepare_tree$branch_labels
+  tree_w = layout$tree_w
+  tree_h = layout$tree_h
+  total_draw_h = layout$total_draw_h
+  col_h = layout$col_h
+  margin = layout$margin
+  offset_h = layout$offset_h
+
+  if (is.null(y_eval_start)) {
+    root_node <- plot_data$y[is.na(plot_data$parent)]
+    root_node_y <- root_node * tree_h
+
+    if (root_node_y < 100) {
+      # tree is short, place near top margin
+      y_eval_start <- total_h - 10
+    } else {
+      # place 15 mm above that node
+      y_eval_start <- margin/2 + root_node_y - 10
+    }
+  }
+
+
+  grid.newpage()
+
+  pushViewport(viewport(
+    width  = unit(total_w, "mm"),
+    height = unit(total_h, "mm"),
+    x      = unit(0, "mm"),
+    y      = unit(0, "mm"),
+    just   = c("left", "bottom"),
+    name   = "page"
+  ))
+
+  pushViewport(viewport(
+    x      = unit(20, "mm"),
+    y      = unit(margin/2, "mm"),
+    width  = unit(tree_w, "mm"),
+    height = unit(tree_h, "mm"),
+    just   = c("left", "bottom"),
+    name   = "tree_area"
+  ))
+
+  for (i in seq_len(nrow(branches))) {
+
+    x0 <- branches$x_start[i] * tree_w
+    y0 <- branches$y_start[i] * tree_h
+    x1 <- branches$x_end[i]   * tree_w
+    y1 <- branches$y_end[i]   * tree_h
+
+
+    grid.segments(x0 = unit(x0, "mm"), y0 = unit(y0, "mm"),
+                  x1 = unit(x0, "mm"), y1 = unit(y1, "mm"),
+                  gp = gpar(col = "black"))
+
+    grid.segments(x0 = unit(x0, "mm"), y0 = unit(y1, "mm"),
+                  x1 = unit(x1, "mm"), y1 = unit(y1, "mm"),
+                  gp = gpar(col = "black"))
+  }
+
+
+  for (i in seq_len(nrow(branch_labels))) {
+    x <- branch_labels$x_par[i] * tree_w
+    y <- branch_labels$y[i] * tree_h
+    lab <- branch_labels$breaks_clean[i]
+
+    if (!is.na(lab) && lab != "NA") {
+
+      tg <- textGrob(label = lab, gp = gpar(fontsize = 7))
+      w <- convertWidth(grobWidth(tg) + unit(1, "mm"), "mm", valueOnly = TRUE)
+      h <- convertHeight(grobHeight(tg) + unit(1, "mm"), "mm", valueOnly = TRUE)
+
+      grid.rect(
+        x = unit(x, "mm"), y = unit(y, "mm"),
+        width = unit(w, "mm"), height = unit(h, "mm"),
+        gp = gpar(fill = "white", col = NA)  # col = NA: no border
+      )
+
+      grid.text(
+        label = lab,
+        x = unit(x, "mm"),
+        y = unit(y, "mm"),
+        just = "center",
+        gp = gpar(col = "gray20", fontsize = 7)
+      )
+    }
+  }
+
+  for (i in seq_len(nrow(plot_data))) {
+    x0  <- plot_data$x[i] * tree_w
+    y0  <- plot_data$y[i] * tree_h
+    x_par  <- plot_data$x_par[i] * tree_h
+    break_lab <- plot_data$breaks_clean[i]
+    lab <- plot_data$node_label[i]
+
+    tg <- textGrob(lab, gp = gpar(fontsize = 8))
+    w  <- convertWidth(grobWidth(tg)  + unit(2, "mm"), "mm", valueOnly = TRUE)
+    h  <- convertHeight(grobHeight(tg)+ unit(1, "mm"), "mm", valueOnly = TRUE)
+
+    grid.rect(
+      x      = unit(x0, "mm"), y      = unit(y0, "mm"),
+      width  = unit(w,  "mm"), height = unit(h,  "mm"),
+      just   = "centre",
+      gp     = gpar(fill = "white", col = "black")
+    )
+    grid.text(
+      label  = lab,
+      x      = unit(x0, "mm"), y = unit(y0, "mm"),
+      just   = "centre",
+      gp     = gpar(col = "black", fontsize = 8)
+    )
+  }
+
+  upViewport()
+  heatmap_x <- if (show_row_prox) unit(tree_w + 20, "mm") else unit(tree_w/2-10, "mm")
+  heatmap_y <- if (show_col_prox) unit((offset_h/2), "mm") else unit(margin/2, "mm")
+  heatmap_h <- if (show_col_prox) unit(total_h, "mm") else unit(total_h-col_h, "mm")
+
+
+  pushViewport(viewport(
+    x      = heatmap_x,
+    y      = heatmap_y,
+    height = heatmap_h,
+    just   = c("left", "bottom"),
+    name   = "heatmap_area"
+  ))
+
+  grid.draw(heat)
+
+  upViewport()
+  seekViewport("page")
+  if (print_eval && !is.null(eval_res)) {
+    draw_indicator(eval_res$data_info, x_eval = x_eval_start, y_eval = y_eval_start, size = eval_text, just = c("left","top"))
+    if (!is.null(eval_res$train_metrics)) {draw_indicator(eval_res$train_metrics, x_eval = x_eval_start, y_eval = (y_eval_start-10), size = eval_text, just = c("left","top"))}
+    if (!is.null(eval_res$test_metrics) && is.null(eval_res$train_metrics)) {draw_indicator(eval_res$test_metrics, x_eval = x_eval_start, y_eval = (y_eval_start-10), size = eval_text, just = c("left","top"))}
+    if (!is.null(eval_res$test_metrics) && !is.null(eval_res$train_metrics)) {draw_indicator(eval_res$test_metrics, (x_eval = x_eval_start + 45), y_eval = (y_eval_start-10), size = eval_text, just = c("left","top"))}
+  }
+  upViewport()
+}

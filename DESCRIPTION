@@ -1,0 +1,43 @@
+Package: dtGAP
+Type: Package
+Title: Supervised Generalized Association Plots Based on Decision Trees
+Version: 0.0.1
+Date: 2026-02-11
+Authors@R: c(
+    person("Chia-Yu", "Chang", email = "110304049@g.nccu.edu.tw", role = "aut"),
+    person("Chun-houh", "Chen", email = "cchen@stat.sinica.edu.tw", role = "aut"),
+    person("Han-Ming", "Wu", email = "wuhm@g.nccu.edu.tw", role = c("cre", "aut")))
+Description: Enhances decision tree visualization by incorporating Generalized
+    Association Plots (GAP) through matrix-based visualizations including
+    confusion matrix maps, decision tree matrix maps, and predicted class
+    membership maps based on supervised correlation and distance metrics.
+License: MIT + file LICENSE
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.2
+Depends:
+    R (>= 4.1.0)
+Imports:
+    C50,
+    caret,
+    circlize,
+    ComplexHeatmap,
+    dplyr,
+    ggparty,
+    grDevices,
+    grid,
+    magrittr,
+    partykit,
+    RColorBrewer,
+    rlang,
+    rpart,
+    seriation,
+    stats,
+    stringr,
+    utils,
+    yardstick
+Suggests:
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3
+LazyData: true
+
