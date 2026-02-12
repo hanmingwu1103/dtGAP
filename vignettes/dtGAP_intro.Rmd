@@ -1,7 +1,7 @@
 ---
 title: "Introduction to dtGAP"
 author: "Han-Ming Wu, Chia-Yu Chang, and Chun-houh Chen"
-date: "2025-06-12"
+date: "2026-02-12"
 output:
   rmarkdown::html_vignette:
     toc: true
