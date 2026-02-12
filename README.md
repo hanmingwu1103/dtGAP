@@ -35,6 +35,8 @@ dtGAP(
 )
 ```
 
+![Quick Start - Penguins](man/figures/README-quick-start.png)
+
 ## Features
 
 ### Tree Models
@@ -92,6 +94,8 @@ dtGAP(
   simple_metrics = TRUE
 )
 ```
+
+![Regression - Galaxy](man/figures/README-regression.png)
 
 ### Customization
 
