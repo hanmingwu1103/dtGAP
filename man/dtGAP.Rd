@@ -20,6 +20,7 @@ dtGAP(
   linkage_method = c("CT", "SG", "CP"),
   seriate_method = "TSP",
   cRGAR_w = 5,
+  select_vars = NULL,
   sort_by_data_type = TRUE,
   custom_layout = NULL,
   panel_space = 0.001,
@@ -93,6 +94,10 @@ dtGAP(
 \code{seriation::list_seriation_methods("dist")} for all supported options. Default: \code{"TSP"}.}
 
 \item{cRGAR_w}{Integer. Window size for RGAR calculation.}
+
+\item{select_vars}{Character vector or NULL. If provided, only these variables
+are displayed in the heatmap panels. The tree is always fit on ALL variables;
+this parameter is display-only. Names must match feature column names.}
 
 \item{sort_by_data_type}{Logical. If TRUE, preserves data_type grouping within nodes.}
 
