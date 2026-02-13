@@ -12,7 +12,8 @@ Description: Enhances decision tree visualization by incorporating Generalized
     confusion matrix maps, decision tree matrix maps, and predicted class
     membership maps based on supervised correlation and distance metrics.
 License: MIT + file LICENSE
-URL: https://github.com/hanmingwu1103/dtGAP
+URL: https://github.com/hanmingwu1103/dtGAP,
+    https://CRAN.R-project.org/package=dtGAP
 BugReports: https://github.com/hanmingwu1103/dtGAP/issues
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
