@@ -73,6 +73,11 @@
 #' @param eval_text Font size for the evaluation text. Default is 7.
 #' @param print_eval Logical, whether to show evaluation results. Default is TRUE.
 #' @param simple_metrics Logical. If TRUE, use simple metric summary instead of full confusion matrix. Default is FALSE.
+#' @param interactive Logical. If TRUE, launches an interactive Shiny app via
+#'   \code{InteractiveComplexHeatmap::htShiny()} showing the heatmap panels with
+#'   hover/click/zoom. The tree panel is omitted in interactive mode (limitation
+#'   of InteractiveComplexHeatmap). Requires the \pkg{InteractiveComplexHeatmap}
+#'   package (from Bioconductor). Default is FALSE.
 #' @return Draws the full dtGAP visualization (decision tree + heatmap + evaluation)
 #'   to the current graphics device. Called for its side effect; returns invisibly.
 #'
@@ -157,7 +162,8 @@ dtGAP <- function(x = NULL,
                   y_eval_start = NULL,
                   eval_text = 7,
                   print_eval = TRUE,
-                  simple_metrics = FALSE) {
+                  simple_metrics = FALSE,
+                  interactive = FALSE) {
   model <- match.arg(model)
   show <- match.arg(show)
   task <- match.arg(task)
@@ -375,6 +381,19 @@ dtGAP <- function(x = NULL,
     col_ht_res$heatmap %v% main_ht_res$heatmap
   else
     main_ht_res$heatmap
+
+  if (interactive) {
+    if (!requireNamespace("InteractiveComplexHeatmap", quietly = TRUE)) {
+      stop("Install InteractiveComplexHeatmap for interactive mode: ",
+           "BiocManager::install('InteractiveComplexHeatmap')")
+    }
+    InteractiveComplexHeatmap::htShiny(
+      combined_heatmap,
+      heatmap_legend_list = legends
+    )
+    return(invisible(NULL))
+  }
+
   heat <- grid.grabExpr(
     draw(
       combined_heatmap,

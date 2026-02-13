@@ -37,6 +37,7 @@ Imports:
     utils,
     yardstick
 Suggests:
+    InteractiveComplexHeatmap,
     knitr,
     rmarkdown,
     testthat (>= 3.0.0)
