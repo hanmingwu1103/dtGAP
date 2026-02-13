@@ -97,6 +97,88 @@ dtGAP(
 
 ![Regression - Galaxy](man/figures/README-regression.png)
 
+### Variable Selection
+
+Focus the heatmap on a subset of features while the tree is still trained on all variables:
+
+```r
+dtGAP(
+  data_train = train_covid, data_test = test_covid,
+  target_lab = "Outcome", show = "test",
+  select_vars = c("LDH", "Lymphocyte")
+)
+```
+
+### Custom Tree Input
+
+Pass a pre-trained tree directly via the `fit` parameter. Supports `rpart`, `party`, and `train` (caret) objects with automatic model detection:
+
+```r
+library(rpart)
+custom_tree <- rpart(Outcome ~ ., data = train_covid)
+
+dtGAP(
+  fit = custom_tree,
+  data_train = train_covid, data_test = test_covid,
+  target_lab = "Outcome", show = "test"
+)
+```
+
+### Interactive Visualization
+
+Set `interactive = TRUE` to launch a Shiny-based heatmap viewer powered by `InteractiveComplexHeatmap`:
+
+```r
+dtGAP(
+  data_train = train_covid, data_test = test_covid,
+  target_lab = "Outcome", show = "test",
+  interactive = TRUE
+)
+```
+
+### Multi-Model Comparison
+
+Compare two or more tree models side-by-side with `compare_dtGAP()`:
+
+```r
+compare_dtGAP(
+  models = c("rpart", "party"),
+  data_train = train_covid, data_test = test_covid,
+  target_lab = "Outcome", show = "test"
+)
+```
+
+### Random Forest Extension
+
+Visualize conditional random forests via `partykit::cforest`:
+
+```r
+# Ensemble summary: variable importance + representative tree
+result <- rf_summary(
+  data_train = train_covid, data_test = test_covid,
+  target_lab = "Outcome", ntree = 50
+)
+
+# Visualize a single tree from the forest
+rf_dtGAP(
+  data_train = train_covid, data_test = test_covid,
+  target_lab = "Outcome", show = "test",
+  tree_index = result$rep_tree_index, ntree = 50
+)
+```
+
+### Export Plots
+
+Save visualizations to PNG, PDF, or SVG:
+
+```r
+save_dtGAP(
+  file = "my_plot.png",
+  data_train = train_covid, data_test = test_covid,
+  target_lab = "Outcome", show = "test"
+)
+```
+
 ### Customization
 
 - **Variable importance**: `col_var_imp`, `var_imp_bar_width`, `var_imp_fontsize`
