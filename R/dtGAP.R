@@ -10,7 +10,15 @@
 #' @param target_lab Character. Name of the target column. Required.
 #' @param show Character. Which subset to return: "all", "train" or "test" .
 #' @param model Character. Which implementation to use: one of "rpart", "party", "C50", or "caret".
+#'   Ignored when \code{fit} is provided.
 #' @param control List or control object. Optional control parameters passed to the chosen tree function.
+#'   Ignored when \code{fit} is provided.
+#' @param fit Optional pre-built tree model object. Supported classes: \code{party},
+#'   \code{rpart}, \code{C5.0}, or \code{train} (caret). When supplied, \code{model}
+#'   and \code{control} are ignored; the model type is auto-detected.
+#' @param user_var_imp Optional named numeric vector of variable importance scores.
+#'   Only used when \code{fit} is provided. If NULL, importance is extracted
+#'   automatically (or the importance barplot is suppressed if extraction fails).
 #' @param data_train Data frame. Training data. Required if show == "train" or when splitting from all.
 #' @param data_test Data frame. Test data. Required if show == "test" or when splitting from all.
 #' @param data_all Data frame. Full dataset. If provided and show == "all", used directly; otherwise split into train/test.
@@ -97,6 +105,8 @@ dtGAP <- function(x = NULL,
                   show = c("all", "train", "test"),
                   model = c("rpart", "party", "C50", "caret"),
                   control = NULL,
+                  fit = NULL,
+                  user_var_imp = NULL,
                   data_train = NULL,
                   data_test = NULL,
                   data_all = NULL,
@@ -199,16 +209,29 @@ dtGAP <- function(x = NULL,
                  test  = data_test)
 
 
-  train_result <- train_tree(
-    data_train = data_train,
-    data = data,
-    target_lab = target_lab,
-    model = model,
-    task = task,
-    control = control
-  )
-  fit <- train_result$fit
-  var_imp <- train_result$var_imp
+  if (!is.null(fit)) {
+    fit_raw <- fit
+    detected_model <- detect_model_type(fit)
+    model <- detected_model
+    fit <- convert_to_party(fit_raw, detected_model)
+    if (!is.null(user_var_imp)) {
+      var_imp <- round(user_var_imp / sum(user_var_imp), 2)
+    } else {
+      var_imp <- extract_var_imp(fit_raw, detected_model)
+      if (is.null(var_imp)) include_var_imp <- FALSE
+    }
+  } else {
+    train_result <- train_tree(
+      data_train = data_train,
+      data = data,
+      target_lab = target_lab,
+      model = model,
+      task = task,
+      control = control
+    )
+    fit <- train_result$fit
+    var_imp <- train_result$var_imp
+  }
 
 
   tree_res <- compute_tree(

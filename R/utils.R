@@ -62,3 +62,58 @@ my_norm <- function(x) {
   x <- x / max(x, na.rm = T)
   x
 }
+
+
+# --- Helpers for custom `fit` parameter in dtGAP() ---
+
+#' Detect model type from a fitted tree object
+#' @noRd
+detect_model_type <- function(fit) {
+  cls <- class(fit)
+  if (inherits(fit, "party"))    return("party")
+  if (inherits(fit, "rpart"))    return("rpart")
+  if (inherits(fit, "C5.0"))     return("C50")
+  if (inherits(fit, "train"))    return("caret")
+  stop("Unsupported fit class: ", paste(cls, collapse = ", "),
+       ". Supported: party, rpart, C5.0, train (caret).")
+}
+
+#' Convert a fitted tree object to a party object
+#' @noRd
+convert_to_party <- function(fit, model_type) {
+  switch(model_type,
+    party = fit,
+    rpart = partykit::as.party(fit),
+    C50   = partykit::as.party(fit),
+    caret = partykit::as.party(fit$finalModel),
+    stop("Cannot convert model type '", model_type, "' to party.")
+  )
+}
+
+#' Extract variable importance from a fitted tree
+#' @noRd
+extract_var_imp <- function(fit, model_type) {
+  vi <- tryCatch({
+    switch(model_type,
+      rpart = {
+        tmp <- tempfile()
+        sink(tmp)
+        s <- summary(fit)
+        sink()
+        s$variable.importance
+      },
+      party = {
+        partykit::varimp(fit)
+      },
+      C50 = {
+        C50::C5imp(fit, metric = "usage")[, "Overall"]
+      },
+      caret = {
+        summary(fit)$variable.importance
+      }
+    )
+  }, error = function(e) NULL)
+
+  if (is.null(vi) || length(vi) == 0) return(NULL)
+  round(vi / sum(vi), 2)
+}

@@ -10,6 +10,8 @@ dtGAP(
   show = c("all", "train", "test"),
   model = c("rpart", "party", "C50", "caret"),
   control = NULL,
+  fit = NULL,
+  user_var_imp = NULL,
   data_train = NULL,
   data_test = NULL,
   data_all = NULL,
@@ -70,9 +72,19 @@ dtGAP(
 
 \item{show}{Character. Which subset to return: "all", "train" or "test" .}
 
-\item{model}{Character. Which implementation to use: one of "rpart", "party", "C50", or "caret".}
+\item{model}{Character. Which implementation to use: one of "rpart", "party", "C50", or "caret".
+Ignored when \code{fit} is provided.}
 
-\item{control}{List or control object. Optional control parameters passed to the chosen tree function.}
+\item{control}{List or control object. Optional control parameters passed to the chosen tree function.
+Ignored when \code{fit} is provided.}
+
+\item{fit}{Optional pre-built tree model object. Supported classes: \code{party},
+\code{rpart}, \code{C5.0}, or \code{train} (caret). When supplied, \code{model}
+and \code{control} are ignored; the model type is auto-detected.}
+
+\item{user_var_imp}{Optional named numeric vector of variable importance scores.
+Only used when \code{fit} is provided. If NULL, importance is extracted
+automatically (or the importance barplot is suppressed if extraction fails).}
 
 \item{data_train}{Data frame. Training data. Required if show == "train" or when splitting from all.}
 
