@@ -9,7 +9,10 @@ Decision trees are prized for their simplicity and interpretability but often fa
 ## Installation
 
 ```r
-# Install from GitHub
+# Install from CRAN
+install.packages("dtGAP")
+
+# Or install the development version from GitHub
 # install.packages("devtools")
 devtools::install_github("hanmingwu1103/dtGAP")
 ```
@@ -205,7 +208,7 @@ save_dtGAP(
 
 ## Citation
 
-Wu, H.-M., Chang, C.-Y., & Chen, C.-H. (2025). dtGAP: Supervised matrix visualization for decision trees based on the GAP framework. R package version 0.0.2. <https://github.com/hanmingwu1103/dtGAP>
+Wu, H.-M., Chang, C.-Y., & Chen, C.-H. (2025). dtGAP: Supervised matrix visualization for decision trees based on the GAP framework. R package version 0.0.2. <https://CRAN.R-project.org/package=dtGAP>
 
 ### References
 
