@@ -59,7 +59,8 @@ dtGAP(
   y_eval_start = NULL,
   eval_text = 7,
   print_eval = TRUE,
-  simple_metrics = FALSE
+  simple_metrics = FALSE,
+  interactive = FALSE
 )
 }
 \arguments{
@@ -173,6 +174,12 @@ dtGAP(
 \item{print_eval}{Logical, whether to show evaluation results. Default is TRUE.}
 
 \item{simple_metrics}{Logical. If TRUE, use simple metric summary instead of full confusion matrix. Default is FALSE.}
+
+\item{interactive}{Logical. If TRUE, launches an interactive Shiny app via
+\code{InteractiveComplexHeatmap::htShiny()} showing the heatmap panels with
+hover/click/zoom. The tree panel is omitted in interactive mode (limitation
+of InteractiveComplexHeatmap). Requires the \pkg{InteractiveComplexHeatmap}
+package (from Bioconductor). Default is FALSE.}
 }
 \value{
 Draws the full dtGAP visualization (decision tree + heatmap + evaluation)
