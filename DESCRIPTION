@@ -1,8 +1,8 @@
 Package: dtGAP
 Type: Package
 Title: Supervised Generalized Association Plots Based on Decision Trees
-Version: 0.0.1
-Date: 2026-02-11
+Version: 0.0.2
+Date: 2026-02-13
 Authors@R: c(
     person("Chia-Yu", "Chang", email = "110304049@g.nccu.edu.tw", role = "aut"),
     person("Chun-houh", "Chen", email = "cchen@stat.sinica.edu.tw", role = "aut"),

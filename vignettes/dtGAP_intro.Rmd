@@ -515,7 +515,7 @@ All `dtGAP()` arguments can be passed through `...`, so you can customize colors
 
 # Citation
 
-Han-Ming Wu, Chia-Yu Chang, and Chun-houh Chen (2025), dtGAP: Supervised matrix visualization for decision trees based on the GAP framework. R package version 0.0.1, (<https://github.com/hanmingwu1103/dtGAP>).
+Han-Ming Wu, Chia-Yu Chang, and Chun-houh Chen (2025), dtGAP: Supervised matrix visualization for decision trees based on the GAP framework. R package version 0.0.2, (<https://github.com/hanmingwu1103/dtGAP>).
 
 **References:**
 

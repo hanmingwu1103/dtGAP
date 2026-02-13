@@ -28,11 +28,11 @@
 #' @examples
 #' \donttest{
 #' compare_dtGAP(
-#'   models = c("rpart", "C50"),
-#'   data_train = train_covid,
-#'   data_test = test_covid,
-#'   target_lab = "Outcome",
-#'   show = "test",
+#'   models = c("rpart", "party"),
+#'   data_all = Psychosis_Disorder,
+#'   target_lab = "UNIQID",
+#'   show = "all",
+#'   trans_type = "none",
 #'   print_eval = FALSE
 #' )
 #' }
