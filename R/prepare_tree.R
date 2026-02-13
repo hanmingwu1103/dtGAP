@@ -60,23 +60,41 @@ prepare_tree <- function(tree_res,
 
 
   if (model %in% c("party", "cforest")) {
-    plot_data <- plot_data %>% mutate(
-      parent_label = paste0(
-        splitvar,
-        " (",
-        round(recalculated_nodesize / total_n * 100, 0),
-        "%)\n",
-        "p = ",
-        formatC(p.value, format = "f", digits = 3),
-        " ",
-        "(",
-        asterisk_sign(p.value),
-        ")"
-      ),
-      child_label = paste0(round(
-        recalculated_nodesize / total_n * 100, 0
-      ), "%")
-    )
+    has_pvalue <- "p.value" %in% names(plot_data) &&
+      is.numeric(plot_data$p.value) &&
+      any(!is.na(plot_data$p.value))
+
+    if (has_pvalue) {
+      plot_data <- plot_data %>% mutate(
+        parent_label = paste0(
+          splitvar,
+          " (",
+          round(recalculated_nodesize / total_n * 100, 0),
+          "%)\n",
+          "p = ",
+          formatC(p.value, format = "f", digits = 3),
+          " ",
+          "(",
+          asterisk_sign(p.value),
+          ")"
+        ),
+        child_label = paste0(round(
+          recalculated_nodesize / total_n * 100, 0
+        ), "%")
+      )
+    } else {
+      plot_data <- plot_data %>% mutate(
+        parent_label = paste0(
+          splitvar,
+          " (",
+          round(recalculated_nodesize / total_n * 100, 0),
+          "%)"
+        ),
+        child_label = paste0(round(
+          recalculated_nodesize / total_n * 100, 0
+        ), "%")
+      )
+    }
   }
 
   if (model == "rpart") {
