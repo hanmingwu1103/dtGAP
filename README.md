@@ -4,7 +4,7 @@
 
 Decision trees are prized for their simplicity and interpretability but often fail to reveal underlying data structures. Generalized Association Plots (GAP) excel at illustrating complex associations yet are typically unsupervised. `dtGAP` bridges this gap by embedding **supervised correlation** and distance measures into GAP for enriched **decision-tree visualization**, offering confusion matrix maps, decision-tree matrix maps, predicted class membership maps, and evaluation panels.
 
-**[View the full vignette](https://github.com/hanmingwu1103/dtGAP/releases/download/v0.0.1/dtGAP_intro.html)**
+**[View the full vignette](https://github.com/hanmingwu1103/dtGAP/releases/download/v0.0.2/dtGAP_intro.html)**
 
 ## Installation
 
@@ -123,7 +123,7 @@ dtGAP(
 
 ## Citation
 
-Wu, H.-M., Chang, C.-Y., & Chen, C.-H. (2025). dtGAP: Supervised matrix visualization for decision trees based on the GAP framework. R package version 0.0.1. <https://github.com/hanmingwu1103/dtGAP>
+Wu, H.-M., Chang, C.-Y., & Chen, C.-H. (2025). dtGAP: Supervised matrix visualization for decision trees based on the GAP framework. R package version 0.0.2. <https://github.com/hanmingwu1103/dtGAP>
 
 ### References
 
