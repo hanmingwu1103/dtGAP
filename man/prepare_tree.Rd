@@ -4,7 +4,7 @@
 \alias{prepare_tree}
 \title{Prepare Tree Plot Data for Visualization}
 \usage{
-prepare_tree(tree_res, model = c("rpart", "party", "C50", "caret"))
+prepare_tree(tree_res, model = c("rpart", "party", "C50", "caret", "cforest"))
 }
 \arguments{
 \item{tree_res}{A list object containing tree plotting information, including a \code{plot_data} data frame.}

@@ -45,7 +45,7 @@
 #' prepare_tree(tree_res, model = "rpart")
 #' }
 prepare_tree <- function(tree_res,
-                         model = c("rpart", "party", "C50", "caret")) {
+                         model = c("rpart", "party", "C50", "caret", "cforest")) {
   model <- match.arg(model)
   plot_data <- tree_res$plot_data
 
@@ -59,7 +59,7 @@ prepare_tree <- function(tree_res,
   }
 
 
-  if (model == "party") {
+  if (model %in% c("party", "cforest")) {
     plot_data <- plot_data %>% mutate(
       parent_label = paste0(
         splitvar,

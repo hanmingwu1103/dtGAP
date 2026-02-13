@@ -6,7 +6,7 @@
 \usage{
 compute_tree(
   fit = NULL,
-  model = c("rpart", "party", "C50", "caret"),
+  model = c("rpart", "party", "C50", "caret", "cforest"),
   show = c("all", "train", "test"),
   data = NULL,
   target_lab = NULL,

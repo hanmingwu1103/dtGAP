@@ -28,7 +28,7 @@ utils::globalVariables(c(
 #' @importFrom utils combn capture.output modifyList
 #' @importFrom grDevices gray
 #' @importFrom rpart rpart
-#' @importFrom partykit ctree as.party varimp
+#' @importFrom partykit ctree cforest gettree as.party varimp
 #' @importFrom C50 C5.0 C5imp
 #' @importFrom caret train confusionMatrix
 #' @importFrom seriation seriate get_order list_seriation_methods
