@@ -139,3 +139,53 @@ train_tree <- function(data_train = NULL,
 
   list(fit     = fit, var_imp = var_imp)
 }
+
+
+#' Fit a Conditional Random Forest
+#'
+#' @description
+#' Fits a conditional random forest using \code{partykit::cforest()} and
+#' returns the forest object along with variable importance scores.
+#'
+#' @param data_train Data frame. Training data.
+#' @param target_lab Character. Name of the target column.
+#' @param task Character. \code{"classification"} or \code{"regression"}.
+#' @param ntree Integer. Number of trees (default 500).
+#' @param mtry Integer or NULL. Number of variables randomly sampled at each
+#'   split. If NULL, uses the \code{cforest} default.
+#' @param control A \code{ctree_control} object or NULL.
+#'
+#' @return A list with elements:
+#'   \item{forest}{The fitted \code{cforest} object.}
+#'   \item{var_imp}{A named numeric vector of relative variable importance
+#'     (scaled to sum to 1 and rounded to two decimals).}
+#'   \item{ntree}{Integer. Number of trees in the forest.}
+#'
+#' @export
+#'
+#' @examples
+#' \donttest{
+#' data(train_covid)
+#' rf_res <- train_rf(train_covid, target_lab = "Outcome", ntree = 50)
+#' rf_res$var_imp
+#' }
+train_rf <- function(data_train,
+                     target_lab,
+                     task = c("classification", "regression"),
+                     ntree = 500L,
+                     mtry = NULL,
+                     control = NULL) {
+  task <- match.arg(task)
+  formula <- stats::as.formula(paste(target_lab, "~ ."))
+
+  cf_args <- list(formula = formula, data = data_train, ntree = ntree)
+  if (!is.null(mtry))  cf_args$mtry  <- mtry
+  if (!is.null(control)) cf_args$control <- control
+
+  forest <- do.call(partykit::cforest, cf_args)
+
+  vi <- partykit::varimp(forest)
+  vi <- round(vi / sum(vi), 2)
+
+  list(forest = forest, var_imp = vi, ntree = ntree)
+}

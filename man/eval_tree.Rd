@@ -12,7 +12,7 @@ eval_tree(
   target_lab = NULL,
   sorted_dat = NULL,
   show = c("all", "train", "test"),
-  model = c("rpart", "party", "C50", "caret"),
+  model = c("rpart", "party", "C50", "caret", "cforest"),
   col_proximity = c("pearson", "spearman", "kendall"),
   linkage_method = c("CT", "SG", "CP"),
   seriate_method = "TSP",

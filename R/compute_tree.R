@@ -50,7 +50,7 @@
 #' tree_res$plot_data
 #' }
 compute_tree <- function(fit = NULL,
-                         model = c("rpart", "party", "C50", "caret"),
+                         model = c("rpart", "party", "C50", "caret", "cforest"),
                          show = c("all", "train", "test"),
                          data = NULL,
                          target_lab = NULL,
@@ -76,7 +76,7 @@ compute_tree <- function(fit = NULL,
     left_join(layout, by = "id")
 
   # add class probability information
-  if (task == "classification" && model == "rpart") {
+  if (task == "classification" && model %in% c("rpart", "caret")) {
     class_prob <- compute_class_prob(plot_data, dat, target_lab)
     plot_data <- plot_data %>%
       left_join(class_prob, by = "id")
