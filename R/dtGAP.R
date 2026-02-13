@@ -22,6 +22,9 @@
 #' @param seriate_method Character. Seriation method for distance objects; see
 #'   `seriation::list_seriation_methods("dist")` for all supported options. Default: `"TSP"`.
 #' @param cRGAR_w Integer. Window size for RGAR calculation.
+#' @param select_vars Character vector or NULL. If provided, only these variables
+#'   are displayed in the heatmap panels. The tree is always fit on ALL variables;
+#'   this parameter is display-only. Names must match feature column names.
 #' @param sort_by_data_type Logical. If TRUE, preserves data_type grouping within nodes.
 #' @param custom_layout Optional data.frame with custom node positions (columns: id, x, y).
 #' @param panel_space Numeric. Vertical spacing between panels in layout.
@@ -104,6 +107,7 @@ dtGAP <- function(x = NULL,
                   linkage_method = c("CT", "SG", "CP"),
                   seriate_method = "TSP",
                   cRGAR_w = 5,
+                  select_vars = NULL,
                   sort_by_data_type = TRUE,
                   custom_layout = NULL,
                   panel_space = 0.001,
@@ -231,6 +235,26 @@ dtGAP <- function(x = NULL,
     sort_by_data_type = sort_by_data_type
   )
 
+  # --- select_vars: display-only variable filtering ---
+  if (!is.null(select_vars)) {
+    if (!is.character(select_vars) || length(select_vars) == 0) {
+      stop("`select_vars` must be a non-empty character vector or NULL.")
+    }
+    feat_cols <- colnames(sorted_dat$sorted_test_matrix)
+    bad <- setdiff(select_vars, feat_cols)
+    if (length(bad) > 0) {
+      stop("These `select_vars` are not in the feature columns: ",
+           paste(bad, collapse = ", "))
+    }
+    available <- intersect(select_vars, feat_cols)
+    sorted_dat$sorted_test_matrix <- sorted_dat$sorted_test_matrix[, available, drop = FALSE]
+    sorted_dat$sorted_col_names <- available
+    if (!is.null(sorted_dat$col_pro_mat_sorted)) {
+      sorted_dat$col_pro_mat_sorted <- sorted_dat$col_pro_mat_sorted[available, available, drop = FALSE]
+    }
+    var_imp <- var_imp[intersect(names(var_imp), select_vars)]
+    if (length(var_imp) > 0) var_imp <- round(var_imp / sum(var_imp), 2)
+  }
 
   layout <- compute_layout(
     sorted_dat = sorted_dat,
