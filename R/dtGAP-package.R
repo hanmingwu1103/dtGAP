@@ -26,7 +26,7 @@ utils::globalVariables(c(
 #' @importFrom stats as.formula cor sd as.dist order.dendrogram as.dendrogram
 #'   dist na.omit setNames
 #' @importFrom utils combn capture.output modifyList
-#' @importFrom grDevices gray
+#' @importFrom grDevices gray png pdf svg dev.off
 #' @importFrom rpart rpart
 #' @importFrom partykit ctree as.party varimp
 #' @importFrom C50 C5.0 C5imp
