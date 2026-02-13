@@ -1,3 +1,82 @@
+#' Draw Tree Panel in Current Viewport
+#'
+#' Renders tree branches, branch labels, and node labels inside the currently
+#' active grid viewport. Extracted from \code{draw_all()} for reuse by
+#' \code{compare_dtGAP()}.
+#'
+#' @param prepare_tree A list with \code{plot_data}, \code{branches}, and
+#'   \code{branch_labels} (output of \code{prepare_tree()}).
+#' @param tree_w Numeric. Width of the tree viewport in mm.
+#' @param tree_h Numeric. Height of the tree viewport in mm.
+#'
+#' @noRd
+draw_tree_panel <- function(prepare_tree, tree_w, tree_h) {
+  plot_data <- prepare_tree$plot_data
+  branches <- prepare_tree$branches
+  branch_labels <- prepare_tree$branch_labels
+
+  for (i in seq_len(nrow(branches))) {
+    x0 <- branches$x_start[i] * tree_w
+    y0 <- branches$y_start[i] * tree_h
+    x1 <- branches$x_end[i] * tree_w
+    y1 <- branches$y_end[i] * tree_h
+
+    grid.segments(
+      x0 = unit(x0, "mm"), y0 = unit(y0, "mm"),
+      x1 = unit(x0, "mm"), y1 = unit(y1, "mm"),
+      gp = gpar(col = "black")
+    )
+    grid.segments(
+      x0 = unit(x0, "mm"), y0 = unit(y1, "mm"),
+      x1 = unit(x1, "mm"), y1 = unit(y1, "mm"),
+      gp = gpar(col = "black")
+    )
+  }
+
+  for (i in seq_len(nrow(branch_labels))) {
+    x <- branch_labels$x_par[i] * tree_w
+    y <- branch_labels$y[i] * tree_h
+    lab <- branch_labels$breaks_clean[i]
+
+    if (!is.na(lab) && lab != "NA") {
+      tg <- textGrob(label = lab, gp = gpar(fontsize = 7))
+      w <- convertWidth(grobWidth(tg) + unit(1, "mm"), "mm", valueOnly = TRUE)
+      h <- convertHeight(grobHeight(tg) + unit(1, "mm"), "mm", valueOnly = TRUE)
+
+      grid.rect(
+        x = unit(x, "mm"), y = unit(y, "mm"),
+        width = unit(w, "mm"), height = unit(h, "mm"),
+        gp = gpar(fill = "white", col = NA)
+      )
+      grid.text(
+        label = lab, x = unit(x, "mm"), y = unit(y, "mm"),
+        just = "center", gp = gpar(col = "gray20", fontsize = 7)
+      )
+    }
+  }
+
+  for (i in seq_len(nrow(plot_data))) {
+    x0 <- plot_data$x[i] * tree_w
+    y0 <- plot_data$y[i] * tree_h
+    lab <- plot_data$node_label[i]
+
+    tg <- textGrob(lab, gp = gpar(fontsize = 8))
+    w <- convertWidth(grobWidth(tg) + unit(2, "mm"), "mm", valueOnly = TRUE)
+    h <- convertHeight(grobHeight(tg) + unit(1, "mm"), "mm", valueOnly = TRUE)
+
+    grid.rect(
+      x = unit(x0, "mm"), y = unit(y0, "mm"),
+      width = unit(w, "mm"), height = unit(h, "mm"),
+      just = "centre", gp = gpar(fill = "white", col = "black")
+    )
+    grid.text(
+      label = lab, x = unit(x0, "mm"), y = unit(y0, "mm"),
+      just = "centre", gp = gpar(col = "black", fontsize = 8)
+    )
+  }
+}
+
+
 #' Draw Full Visualization: Decision Tree with Heatmap and Evaluation
 #'
 #' This function creates a full-page layout consisting of a decision tree plot,
@@ -39,8 +118,6 @@ draw_all <- function(prepare_tree,
                      show_col_prox = TRUE,
                      show_row_prox = TRUE) {
   plot_data <- prepare_tree$plot_data
-  branches <- prepare_tree$branches
-  branch_labels <- prepare_tree$branch_labels
   tree_w <- layout$tree_w
   tree_h <- layout$tree_h
   total_draw_h <- layout$total_draw_h
@@ -82,84 +159,7 @@ draw_all <- function(prepare_tree,
     name   = "tree_area"
   ))
 
-  for (i in seq_len(nrow(branches))) {
-    x0 <- branches$x_start[i] * tree_w
-    y0 <- branches$y_start[i] * tree_h
-    x1 <- branches$x_end[i] * tree_w
-    y1 <- branches$y_end[i] * tree_h
-
-
-    grid.segments(
-      x0 = unit(x0, "mm"),
-      y0 = unit(y0, "mm"),
-      x1 = unit(x0, "mm"),
-      y1 = unit(y1, "mm"),
-      gp = gpar(col = "black")
-    )
-
-    grid.segments(
-      x0 = unit(x0, "mm"),
-      y0 = unit(y1, "mm"),
-      x1 = unit(x1, "mm"),
-      y1 = unit(y1, "mm"),
-      gp = gpar(col = "black")
-    )
-  }
-
-
-  for (i in seq_len(nrow(branch_labels))) {
-    x <- branch_labels$x_par[i] * tree_w
-    y <- branch_labels$y[i] * tree_h
-    lab <- branch_labels$breaks_clean[i]
-
-    if (!is.na(lab) && lab != "NA") {
-      tg <- textGrob(label = lab, gp = gpar(fontsize = 7))
-      w <- convertWidth(grobWidth(tg) + unit(1, "mm"), "mm", valueOnly = TRUE)
-      h <- convertHeight(grobHeight(tg) + unit(1, "mm"), "mm", valueOnly = TRUE)
-
-      grid.rect(
-        x = unit(x, "mm"),
-        y = unit(y, "mm"),
-        width = unit(w, "mm"),
-        height = unit(h, "mm"),
-        gp = gpar(fill = "white", col = NA) # col = NA: no border
-      )
-
-      grid.text(
-        label = lab,
-        x = unit(x, "mm"),
-        y = unit(y, "mm"),
-        just = "center",
-        gp = gpar(col = "gray20", fontsize = 7)
-      )
-    }
-  }
-
-  for (i in seq_len(nrow(plot_data))) {
-    x0 <- plot_data$x[i] * tree_w
-    y0 <- plot_data$y[i] * tree_h
-    lab <- plot_data$node_label[i]
-
-    tg <- textGrob(lab, gp = gpar(fontsize = 8))
-    w <- convertWidth(grobWidth(tg) + unit(2, "mm"), "mm", valueOnly = TRUE)
-    h <- convertHeight(grobHeight(tg) + unit(1, "mm"), "mm", valueOnly = TRUE)
-
-    grid.rect(
-      x      = unit(x0, "mm"),
-      y      = unit(y0, "mm"),
-      width  = unit(w, "mm"),
-      height = unit(h, "mm"),
-      just   = "centre",
-      gp     = gpar(fill = "white", col = "black")
-    )
-    grid.text(
-      label = lab,
-      x = unit(x0, "mm"),
-      y = unit(y0, "mm"),
-      just = "centre",
-      gp = gpar(col = "black", fontsize = 8)
-    )
-  }
+  draw_tree_panel(prepare_tree, tree_w, tree_h)
 
   upViewport()
   heatmap_x <- if (show_row_prox)

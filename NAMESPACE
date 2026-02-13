@@ -2,6 +2,7 @@
 
 export(add_data_type)
 export(col_ht)
+export(compare_dtGAP)
 export(compute_layout)
 export(compute_tree)
 export(draw_all)
