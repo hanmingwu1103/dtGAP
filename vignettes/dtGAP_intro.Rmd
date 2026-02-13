@@ -1,7 +1,7 @@
 ---
 title: "Introduction to dtGAP"
 author: "Han-Ming Wu, Chia-Yu Chang, and Chun-houh Chen"
-date: "2026-02-12"
+date: "2026-02-13"
 output:
   rmarkdown::html_vignette:
     toc: true
@@ -319,6 +319,198 @@ dtGAP(
   show_row_names = FALSE
 )
 ```
+
+
+# Variable Selection
+
+Sometimes you may want to focus the heatmap on a subset of features while keeping the tree trained on all variables. The `select_vars` parameter lets you specify which variables to display---the tree still uses every feature for splitting, but only the selected ones appear in the heatmap panels.
+
+```{r ex_select_vars, echo=TRUE, fig.height=9, fig.width=11}
+dtGAP(
+  data_train = train_covid, data_test = test_covid,
+  target_lab = "Outcome", show = "test",
+  select_vars = c("LDH", "Lymphocyte"),
+  label_map = c("0" = "Survival", "1" = "Death"),
+  label_map_colors = c("Survival" = "#50046d", "Death" = "#fcc47f"),
+  simple_metrics = TRUE,
+  show_col_prox = FALSE, show_row_prox = FALSE,
+  y_eval_start = 200,
+  raw_value_col = colorRampPalette(
+    c("#33286b", "#26828e", "#75d054", "#fae51f")
+  )(9)
+)
+```
+
+Note that `select_vars` must be a character vector of column names that exist in the data (excluding the target). Variable importance values are rescaled to sum to 1 for the selected subset.
+
+
+# Custom Tree Input
+
+If you have already trained a decision tree outside of `dtGAP`, you can pass it directly using the `fit` parameter. This is useful when you want to use a specific tree configuration or compare a custom model with the built-in options.
+
+`dtGAP()` accepts `rpart`, `party`, and `train` (caret) objects. The model type is automatically detected, and the tree is converted internally. You can optionally supply your own variable importance vector via `user_var_imp`.
+
+```{r ex_custom_fit, echo=TRUE, fig.height=9, fig.width=11}
+library(rpart)
+
+# Train a custom rpart tree with specific parameters
+custom_tree <- rpart(
+  Outcome ~ ., data = train_covid,
+  control = rpart.control(maxdepth = 3, cp = 0.01)
+)
+
+dtGAP(
+  fit = custom_tree,
+  data_train = train_covid, data_test = test_covid,
+  target_lab = "Outcome", show = "test",
+  label_map = c("0" = "Survival", "1" = "Death"),
+  label_map_colors = c("Survival" = "#50046d", "Death" = "#fcc47f"),
+  simple_metrics = TRUE,
+  show_col_prox = FALSE, show_row_prox = FALSE,
+  y_eval_start = 200,
+  raw_value_col = colorRampPalette(
+    c("#33286b", "#26828e", "#75d054", "#fae51f")
+  )(9)
+)
+```
+
+
+# Interactive Visualization
+
+Set `interactive = TRUE` to launch a Shiny-based interactive heatmap viewer powered by [InteractiveComplexHeatmap](https://bioconductor.org/packages/InteractiveComplexHeatmap/). This lets you hover, click, and zoom into the heatmap panels directly in your browser.
+
+```{r ex_interactive, echo=TRUE, eval=FALSE}
+dtGAP(
+  data_train = train_covid, data_test = test_covid,
+  target_lab = "Outcome", show = "test",
+  interactive = TRUE, print_eval = FALSE
+)
+```
+
+Note: `InteractiveComplexHeatmap` must be installed separately from Bioconductor:
+
+```{r install_ich, echo=TRUE, eval=FALSE}
+BiocManager::install("InteractiveComplexHeatmap")
+```
+
+In interactive mode, only the heatmap panels are displayed (the tree panel is omitted, as `InteractiveComplexHeatmap` handles ComplexHeatmap objects).
+
+
+# Multi-Model Comparison
+
+The `compare_dtGAP()` function lets you compare two or more tree models side-by-side on a single wide canvas. Each model gets its own tree + heatmap panel with a label header.
+
+```{r ex_compare, echo=TRUE, fig.height=9, fig.width=22}
+compare_dtGAP(
+  models = c("rpart", "party"),
+  data_train = train_covid, data_test = test_covid,
+  target_lab = "Outcome", show = "test",
+  label_map = c("0" = "Survival", "1" = "Death"),
+  label_map_colors = c("Survival" = "#50046d", "Death" = "#fcc47f"),
+  simple_metrics = TRUE,
+  show_col_prox = FALSE, show_row_prox = FALSE,
+  y_eval_start = 200,
+  raw_value_col = colorRampPalette(
+    c("#33286b", "#26828e", "#75d054", "#fae51f")
+  )(9)
+)
+```
+
+Supported models include `"rpart"`, `"party"`, `"C50"`, and `"caret"`. The default page width is 594 mm (two A4 pages side-by-side); you can adjust it with `total_w`.
+
+
+# Random Forest Extension
+
+dtGAP extends beyond single decision trees with three functions for conditional random forests via `partykit::cforest`:
+
+- `train_rf()` --- train a conditional random forest
+- `rf_summary()` --- ensemble-level summary (variable importance + representative tree)
+- `rf_dtGAP()` --- visualize any individual tree from the forest using the full dtGAP pipeline
+
+## Training a Random Forest
+
+`train_rf()` fits a `cforest` and returns the forest object, normalized variable importance, and the number of trees.
+
+```{r ex_train_rf, echo=TRUE}
+rf <- train_rf(
+  data_train = train_covid,
+  target_lab = "Outcome",
+  ntree = 50
+)
+names(rf)
+rf$var_imp
+```
+
+## Ensemble Summary
+
+`rf_summary()` provides an overview of the fitted random forest. It displays a variable importance barplot and identifies the **representative tree**---the individual tree whose predictions agree most closely with the full ensemble.
+
+```{r ex_rf_summary, echo=TRUE, fig.height=9, fig.width=11}
+result <- rf_summary(
+  data_train = train_covid,
+  data_test = test_covid,
+  target_lab = "Outcome",
+  ntree = 50,
+  top_n_vars = 3
+)
+result$rep_tree_index
+```
+
+The returned `rep_tree_index` tells you which tree best represents the ensemble, which you can then visualize with `rf_dtGAP()`.
+
+## Visualizing Individual Trees
+
+`rf_dtGAP()` extracts a single tree from the forest and renders it through the full dtGAP pipeline (decision tree + heatmap + evaluation). The title automatically shows "Tree k/N".
+
+```{r ex_rf_dtGAP, echo=TRUE, fig.height=9, fig.width=11}
+rf_dtGAP(
+  data_train = train_covid, data_test = test_covid,
+  target_lab = "Outcome", show = "test",
+  tree_index = 1, ntree = 50,
+  label_map = c("0" = "Survival", "1" = "Death"),
+  label_map_colors = c("Survival" = "#50046d", "Death" = "#fcc47f"),
+  simple_metrics = TRUE,
+  show_col_prox = FALSE, show_row_prox = FALSE,
+  y_eval_start = 200,
+  raw_value_col = colorRampPalette(
+    c("#33286b", "#26828e", "#75d054", "#fae51f")
+  )(9)
+)
+```
+
+
+# Exporting Plots
+
+`save_dtGAP()` exports the dtGAP visualization to PNG, PDF, or SVG files. The format is automatically inferred from the file extension, or you can set it explicitly. Dimensions are specified in millimeters (default A4 landscape: 297 x 210 mm).
+
+```{r ex_save, echo=TRUE, eval=FALSE}
+# Save as PNG (300 dpi)
+save_dtGAP(
+  file = "my_plot.png",
+  data_train = train_covid, data_test = test_covid,
+  target_lab = "Outcome", show = "test",
+  print_eval = FALSE
+)
+
+# Save as PDF
+save_dtGAP(
+  file = "my_plot.pdf",
+  data_train = train_covid, data_test = test_covid,
+  target_lab = "Outcome", show = "test",
+  print_eval = FALSE
+)
+
+# Custom dimensions (wide format)
+save_dtGAP(
+  file = "wide_plot.svg",
+  width = 500, height = 250,
+  data_train = train_covid, data_test = test_covid,
+  target_lab = "Outcome", show = "test",
+  print_eval = FALSE
+)
+```
+
+All `dtGAP()` arguments can be passed through `...`, so you can customize colors, metrics, and layout just as you would with `dtGAP()` directly.
 
 
 # Citation
