@@ -97,6 +97,8 @@ draw_tree_panel <- function(prepare_tree, tree_w, tree_h) {
 #' @param show_row_prox Logical, whether to show row proximity.
 #' @param show_col_prox Logical, whether to show column proximity.
 #'
+#' @return Draws the full visualization to the current graphics device.
+#'   Called for its side effect; returns \code{invisible(NULL)}.
 #'
 #' @export
 #'

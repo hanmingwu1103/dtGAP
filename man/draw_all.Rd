@@ -45,6 +45,10 @@ containing \code{plot_data} and \code{branches} for tree structure.}
 
 \item{show_row_prox}{Logical, whether to show row proximity.}
 }
+\value{
+Draws the full visualization to the current graphics device.
+Called for its side effect; returns \code{invisible(NULL)}.
+}
 \description{
 This function creates a full-page layout consisting of a decision tree plot,
 a heatmap, and optional evaluation results. It is designed for use in

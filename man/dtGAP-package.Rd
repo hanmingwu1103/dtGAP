@@ -7,6 +7,14 @@
 \description{
 Enhances decision tree visualization by incorporating Generalized Association Plots (GAP) through matrix-based visualizations including confusion matrix maps, decision tree matrix maps, and predicted class membership maps based on supervised correlation and distance metrics.
 }
+\seealso{
+Useful links:
+\itemize{
+  \item \url{https://github.com/hanmingwu1103/dtGAP}
+  \item Report bugs at \url{https://github.com/hanmingwu1103/dtGAP/issues}
+}
+
+}
 \author{
 \strong{Maintainer}: Han-Ming Wu \email{wuhm@g.nccu.edu.tw}
 
