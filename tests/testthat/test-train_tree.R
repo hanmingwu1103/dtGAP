@@ -1,6 +1,6 @@
 test_that("train_tree returns fit and var_imp with rpart", {
   result <- train_tree(
-    data_train = train_covid,
+    data_train = toy_train,
     target_lab = "Outcome",
     model = "rpart"
   )
@@ -12,7 +12,7 @@ test_that("train_tree returns fit and var_imp with rpart", {
 
 test_that("train_tree var_imp sums to approximately 1", {
   result <- train_tree(
-    data_train = train_covid,
+    data_train = toy_train,
     target_lab = "Outcome",
     model = "rpart"
   )
@@ -24,7 +24,7 @@ test_that("train_tree errors when no data provided", {
 })
 
 test_that("train_tree can extract train from combined data", {
-  data_all <- add_data_type(data_train = train_covid, data_test = test_covid)
+  data_all <- add_data_type(data_train = toy_train, data_test = toy_test)
   data_all <- prepare_features(data_all, target_lab = "Outcome", task = "classification")
   result <- train_tree(
     data = data_all,
