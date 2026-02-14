@@ -3,7 +3,6 @@
 ^data-raw$
 ^LICENSE\.md$
 ^\.claude$
-^vignettes/.*\.html$
 ^doc$
 ^Meta$
 ^cran-comments\.md$
