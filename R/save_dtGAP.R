@@ -18,7 +18,7 @@
 #' @export
 #'
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' save_dtGAP(
 #'   file = tempfile(fileext = ".png"),
 #'   data_train = train_covid,

@@ -71,7 +71,7 @@ rf_summary(
   data_train = train_covid,
   data_test = test_covid,
   target_lab = "Outcome",
-  ntree = 50
+  ntree = 10
 )
 }
 }

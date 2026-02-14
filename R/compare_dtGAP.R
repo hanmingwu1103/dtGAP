@@ -26,7 +26,7 @@
 #' @export
 #'
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' compare_dtGAP(
 #'   models = c("rpart", "party"),
 #'   data_all = Psychosis_Disorder,
@@ -36,6 +36,7 @@
 #'   print_eval = FALSE
 #' )
 #' }
+#'
 compare_dtGAP <- function(models = c("rpart", "party"),
                           data_train = NULL,
                           data_test = NULL,

@@ -84,7 +84,7 @@
 #' @export
 #'
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' # Case 1: test_covid
 #' dtGAP(
 #'   data_train = train_covid,
@@ -98,6 +98,8 @@
 #'     c("#33286b", "#26828e", "#75d054", "#fae51f")
 #'   )(9)
 #' )
+#' }
+#' \donttest{
 #' # Case 2: Psychosis_Disorder
 #' dtGAP(
 #'   data_all = Psychosis_Disorder,

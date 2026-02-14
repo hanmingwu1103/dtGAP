@@ -41,7 +41,7 @@ returns the forest object along with variable importance scores.
 \examples{
 \donttest{
 data(train_covid)
-rf_res <- train_rf(train_covid, target_lab = "Outcome", ntree = 50)
+rf_res <- train_rf(train_covid, target_lab = "Outcome", ntree = 10)
 rf_res$var_imp
 }
 }

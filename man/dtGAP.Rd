@@ -209,7 +209,7 @@ dtGAP bridges this gap by introducing matrix-based visualizations—such as the 
 This offers a more comprehensive and interpretable representation of decision-making processes in tree-based models.
 }
 \examples{
-\donttest{
+\dontrun{
 # Case 1: test_covid
 dtGAP(
   data_train = train_covid,
@@ -223,6 +223,8 @@ dtGAP(
     c("#33286b", "#26828e", "#75d054", "#fae51f")
   )(9)
 )
+}
+\donttest{
 # Case 2: Psychosis_Disorder
 dtGAP(
   data_all = Psychosis_Disorder,
