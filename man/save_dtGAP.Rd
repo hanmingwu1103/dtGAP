@@ -39,7 +39,7 @@ Invisible file path of the created file.
 Exports the dtGAP plot to PNG, PDF, or SVG format.
 }
 \examples{
-\donttest{
+\dontrun{
 save_dtGAP(
   file = tempfile(fileext = ".png"),
   data_train = train_covid,

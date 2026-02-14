@@ -55,7 +55,7 @@ side-by-side on a single wide page. Shared data preparation is performed
 once; each model gets its own tree + heatmap panel.
 }
 \examples{
-\donttest{
+\dontrun{
 compare_dtGAP(
   models = c("rpart", "party"),
   data_all = Psychosis_Disorder,
@@ -65,4 +65,5 @@ compare_dtGAP(
   print_eval = FALSE
 )
 }
+
 }

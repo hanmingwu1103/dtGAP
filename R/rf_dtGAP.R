@@ -69,14 +69,14 @@
 #' @export
 #'
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' rf_dtGAP(
 #'   data_train = train_covid,
 #'   data_test = test_covid,
 #'   target_lab = "Outcome",
 #'   show = "test",
 #'   tree_index = 1,
-#'   ntree = 50,
+#'   ntree = 10,
 #'   print_eval = FALSE
 #' )
 #' }

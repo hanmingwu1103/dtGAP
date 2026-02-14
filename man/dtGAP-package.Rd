@@ -11,6 +11,7 @@ Enhances decision tree visualization by incorporating Generalized Association Pl
 Useful links:
 \itemize{
   \item \url{https://github.com/hanmingwu1103/dtGAP}
+  \item \url{https://CRAN.R-project.org/package=dtGAP}
   \item Report bugs at \url{https://github.com/hanmingwu1103/dtGAP/issues}
 }
 
