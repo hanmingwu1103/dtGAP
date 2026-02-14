@@ -8,7 +8,9 @@
 
 ## Notes
 
-* This is a new submission (first CRAN release).
+* This is an update from 0.0.1 to 0.0.2.
+* Replaced vignette Rmd source with pre-built HTML in inst/doc to reduce
+  build time. Removed knitr and rmarkdown from Suggests.
 * The package suggests `InteractiveComplexHeatmap` from Bioconductor, which
   is only used when `interactive = TRUE` and is checked via
   `requireNamespace()` at runtime.
