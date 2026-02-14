@@ -1,6 +1,8 @@
 # --- dtGAP (integration) ------------------------------------------------------
 
 test_that("dtGAP runs end-to-end for classification with train/test split", {
+  skip_unless_extended()
+
   pdf(NULL) # suppress graphical output
   on.exit(dev.off(), add = TRUE)
 
@@ -17,6 +19,8 @@ test_that("dtGAP runs end-to-end for classification with train/test split", {
 })
 
 test_that("dtGAP runs with label_map", {
+  skip_unless_extended()
+
   pdf(NULL)
   on.exit(dev.off(), add = TRUE)
 
@@ -34,6 +38,8 @@ test_that("dtGAP runs with label_map", {
 })
 
 test_that("dtGAP runs with data_all and show='all'", {
+  skip_unless_extended()
+
   pdf(NULL)
   on.exit(dev.off(), add = TRUE)
 
@@ -73,6 +79,8 @@ test_that("dtGAP rejects invalid seriate_method", {
 })
 
 test_that("dtGAP runs with simple_metrics", {
+  skip_unless_extended()
+
   pdf(NULL)
   on.exit(dev.off(), add = TRUE)
 

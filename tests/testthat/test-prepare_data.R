@@ -39,9 +39,9 @@ test_that("prepare_features errors on non-data.frame input", {
 })
 
 test_that("add_data_type combines train and test", {
-  result <- add_data_type(data_train = train_covid, data_test = test_covid)
+  result <- add_data_type(data_train = toy_train, data_test = toy_test)
   expect_true("data_type" %in% names(result))
-  expect_equal(nrow(result), nrow(train_covid) + nrow(test_covid))
+  expect_equal(nrow(result), nrow(toy_train) + nrow(toy_test))
   expect_s3_class(result$data_type, "factor")
   expect_setequal(levels(result$data_type), c("train", "test"))
 })
@@ -56,7 +56,7 @@ test_that("add_data_type splits data_all", {
 
 test_that("add_data_type errors when neither data_all nor both train/test provided", {
   expect_error(
-    add_data_type(data_train = train_covid),
+    add_data_type(data_train = toy_train),
     "data_train and data_test"
   )
 })

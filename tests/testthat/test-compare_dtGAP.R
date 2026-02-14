@@ -1,6 +1,8 @@
 # --- compare_dtGAP -------------------------------------------------------------
 
 test_that("compare_dtGAP renders two models side-by-side", {
+  skip_unless_extended()
+
   pdf(NULL)
   on.exit(dev.off(), add = TRUE)
 

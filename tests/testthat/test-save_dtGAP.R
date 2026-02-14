@@ -1,6 +1,8 @@
 # --- save_dtGAP ---------------------------------------------------------------
 
 test_that("save_dtGAP creates a PNG file", {
+  skip_unless_extended()
+
   f <- tempfile(fileext = ".png")
   on.exit(unlink(f), add = TRUE)
 
@@ -18,6 +20,8 @@ test_that("save_dtGAP creates a PNG file", {
 })
 
 test_that("save_dtGAP creates a PDF file", {
+  skip_unless_extended()
+
   f <- tempfile(fileext = ".pdf")
   on.exit(unlink(f), add = TRUE)
 
@@ -35,6 +39,8 @@ test_that("save_dtGAP creates a PDF file", {
 })
 
 test_that("save_dtGAP creates an SVG file", {
+  skip_unless_extended()
+
   f <- tempfile(fileext = ".svg")
   on.exit(unlink(f), add = TRUE)
 
@@ -52,6 +58,8 @@ test_that("save_dtGAP creates an SVG file", {
 })
 
 test_that("save_dtGAP infers format from extension", {
+  skip_unless_extended()
+
   f <- tempfile(fileext = ".pdf")
   on.exit(unlink(f), add = TRUE)
 

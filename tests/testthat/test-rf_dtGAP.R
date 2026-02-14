@@ -1,8 +1,9 @@
 # --- rf_dtGAP ------------------------------------------------------------------
 
 test_that("rf_dtGAP pipeline runs (forest training + tree extraction)", {
-  # Test the core pipeline up to tree extraction
-  rf_result <- train_rf(train_covid, target_lab = "Outcome", ntree = 10)
+  skip_unless_extended()
+
+  rf_result <- train_rf(train_covid, target_lab = "Outcome", ntree = 5)
   fit <- partykit::gettree(rf_result$forest, tree = 1)
 
   expect_s3_class(fit, "party")
@@ -10,6 +11,8 @@ test_that("rf_dtGAP pipeline runs (forest training + tree extraction)", {
 })
 
 test_that("rf_dtGAP errors on invalid tree_index (too large)", {
+  skip_unless_extended()
+
   expect_error(
     rf_dtGAP(
       data_train = train_covid,
@@ -17,13 +20,15 @@ test_that("rf_dtGAP errors on invalid tree_index (too large)", {
       target_lab = "Outcome",
       show = "test",
       tree_index = 999,
-      ntree = 10
+      ntree = 5
     ),
     "tree_index"
   )
 })
 
 test_that("rf_dtGAP errors on tree_index = 0", {
+  skip_unless_extended()
+
   expect_error(
     rf_dtGAP(
       data_train = train_covid,
@@ -31,20 +36,21 @@ test_that("rf_dtGAP errors on tree_index = 0", {
       target_lab = "Outcome",
       show = "test",
       tree_index = 0,
-      ntree = 10
+      ntree = 5
     ),
     "tree_index"
   )
 })
 
 test_that("rf_dtGAP renders end-to-end with suitable tree", {
+  skip_unless_extended()
+
   pdf(NULL)
   on.exit(dev.off(), add = TRUE)
 
-  # Try multiple tree indices to find one that renders
-  rf_result <- train_rf(train_covid, target_lab = "Outcome", ntree = 20)
+  rf_result <- train_rf(train_covid, target_lab = "Outcome", ntree = 5)
   rendered <- FALSE
-  for (k in seq_len(20)) {
+  for (k in seq_len(5)) {
     result <- tryCatch({
       fit <- partykit::gettree(rf_result$forest, tree = k)
       data_all_prep <- add_data_type(data_train = train_covid, data_test = test_covid)

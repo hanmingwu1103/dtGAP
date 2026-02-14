@@ -1,6 +1,8 @@
 # --- select_vars ---------------------------------------------------------------
 
 test_that("dtGAP renders with select_vars subset", {
+  skip_unless_extended()
+
   pdf(NULL)
   on.exit(dev.off(), add = TRUE)
 
@@ -17,6 +19,8 @@ test_that("dtGAP renders with select_vars subset", {
 })
 
 test_that("dtGAP renders with single select_vars (drop = FALSE)", {
+  skip_unless_extended()
+
   pdf(NULL)
   on.exit(dev.off(), add = TRUE)
 
@@ -33,6 +37,8 @@ test_that("dtGAP renders with single select_vars (drop = FALSE)", {
 })
 
 test_that("dtGAP errors on invalid select_vars names", {
+  skip_unless_extended()
+
   expect_error(
     dtGAP(
       data_train = train_covid,
@@ -46,6 +52,8 @@ test_that("dtGAP errors on invalid select_vars names", {
 })
 
 test_that("dtGAP errors on empty select_vars", {
+  skip_unless_extended()
+
   expect_error(
     dtGAP(
       data_train = train_covid,
@@ -59,6 +67,8 @@ test_that("dtGAP errors on empty select_vars", {
 })
 
 test_that("dtGAP errors on non-character select_vars", {
+  skip_unless_extended()
+
   expect_error(
     dtGAP(
       data_train = train_covid,

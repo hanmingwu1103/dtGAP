@@ -1,6 +1,7 @@
 # --- interactive ---------------------------------------------------------------
 
 test_that("interactive = TRUE errors without InteractiveComplexHeatmap", {
+  skip_unless_extended()
   skip_if(
     requireNamespace("InteractiveComplexHeatmap", quietly = TRUE),
     "InteractiveComplexHeatmap is installed; cannot test missing-package error"
@@ -20,6 +21,8 @@ test_that("interactive = TRUE errors without InteractiveComplexHeatmap", {
 })
 
 test_that("interactive = FALSE still works normally", {
+  skip_unless_extended()
+
   pdf(NULL)
   on.exit(dev.off(), add = TRUE)
 
